@@ -1,4 +1,4 @@
-# MyPackage
+# BLE Provisioning
 
 A template repository for creating a Toit package.
 
@@ -6,12 +6,6 @@ A template repository for creating a Toit package.
 Use `toit.pkg describe` or `toit pkg describe` (depending on which Toit
 variant you use) to see how https://pkg.toit.io will extract package
 information from your repo when you publish the package.
-
-Either add a `name: ...` entry to the package.yaml or change the title
-(first line) of this README to the package name.
-
-Either add a `description: ...` entry to the package.yaml or ensure
-that the first paragraph of this README can be used as a description.
 
 ## Structure
 Code that should be used by other developers must live in the `src` folder.
@@ -49,26 +43,6 @@ and
 // Use of this source code is governed by a Zero-Clause BSD license that can
 // be found in the examples/EXAMPLES_LICENSE file.
 ```
-
-## Local package
-Examples and tests can have different dependencies than the package. This is,
-why they have their own package.yaml/package.lock.
-
-Open the examples (resp. tests) folder with a separate instance of your IDE.
-For vscode you could just write `code examples`.
-
-Install this package as a local package.
-```
-cd examples
-toit.pkg install --local --name=YOUR_PACKAGE_NAME ..
-```
-
-This installs the package located at ".." (here the root of the repository) with
-your package name.
-
-Consequently examples and tests can import the package as if it was installed
-from the Internet. This way, tests and examples use the same syntax as
-users of the package.
 
 ## Publish
 Make sure to run `toit.pkg describe` to verify that the data is correct.
