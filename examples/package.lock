@@ -1,1 +1,12 @@
-# Toit Lock File.
+prefixes:
+  protobuf: toit-protobuf
+  provision: ..
+packages:
+  ..:
+    path: ..
+    prefixes:
+      protobuf: toit-protobuf
+  toit-protobuf:
+    url: github.com/toitware/toit-protobuf
+    version: 1.1.0
+    hash: 363491a929eadf21147f03b3d42aad80f6cd5943

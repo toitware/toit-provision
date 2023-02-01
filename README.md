@@ -1,84 +1,105 @@
-# MyPackage
+# Toit Provision
 
-A template repository for creating a Toit package.
+Provision ESP32 connect to designated Wi-Fi access point by PC or App of mobile phone.
 
-## Toit package
-Use `toit.pkg describe` or `toit pkg describe` (depending on which Toit
-variant you use) to see how https://pkg.toit.io will extract package
-information from your repo when you publish the package.
+## 1. Tool and App
 
-Either add a `name: ...` entry to the package.yaml or change the title
-(first line) of this README to the package name.
+There is an issue in BLE provision of esp-idf, it is that esp-idf only supports blocking mode which cause BLE protocol stack blocks for about 4 seconds without response for any outside request. To skip this issue, you should modify provision source code of PC and mobile APP. Please know that the supplied modification as following is the easiest method not the best method.
 
-Either add a `description: ...` entry to the package.yaml or ensure
-that the first paragraph of this README can be used as a description.
+### 1.1 Tool
 
-## Structure
-Code that should be used by other developers must live in the `src` folder.
+It is remanded to use esp-idf v5.0 BLE provision tool, operation steps are as following:
 
-Examples should live in `examples`. For bigger examples, or examples that
-use more packages, create a subfolder.
+1. clone esp-idf
 
-Tests live in the `tests` folder.
-
-## Copyright
-Don't forget to update the copyright holder in the license files.
-There are (up to) three license files:
-- `LICENSE`: usually MIT
-- `examples/EXAMPLES_LICENSE`: usually BSD0
-- `tests/TESTS_LICENSE`: usually BSD0
-
-We recommend to use the following Copyright header in `src` files (with your
-copyright):
-
-```
-// Copyright (C) 2022 Jane/John Doe
-// Use of this source code is governed by an MIT-style license that can be
-// found in the package's LICENSE file.
+```sh
+git clone --branch v5.0 --depth 1 https://github.com/espressif/esp-idf.git
 ```
 
-Similarly, you can use the following header for tests and examples:
-```
-// Copyright (C) 2022 Jane/John Doe
-// Use of this source code is governed by a Zero-Clause BSD license that can
-// be found in the tests/TESTS_LICENSE file.
-```
-and
-```
-// Copyright (C) 2022 Jane/John Doe
-// Use of this source code is governed by a Zero-Clause BSD license that can
-// be found in the examples/EXAMPLES_LICENSE file.
+2. install tools
+
+```sh
+cd esp-idf
+./install.sh
+. ./export.sh
 ```
 
-## Local package
-Examples and tests can have different dependencies than the package. This is,
-why they have their own package.yaml/package.lock.
+3. modify script
 
-Open the examples (resp. tests) folder with a separate instance of your IDE.
-For vscode you could just write `code examples`.
+Insert the following code between lines 212 and 213 of `tools/esp_prov/esp_prov.py`
 
-Install this package as a local package.
+```python
+time.sleep(5)
 ```
+
+4. run script
+
+Please use your own device's service name instead of `$SERVICE_NAME`
+
+```
+python3 tools/esp_prov/esp_prov.py --transport ble --sec_ver 0 --service_name $SERVICE_NAME
+```
+
+### 1.2 App
+
+Because this toit BLE provision has not supported security mode, so it is remanded to use older version of android APP, if you know how to modify the APP source code to select non-encrypt mode, it will be better to use the newest version.
+Following details just introduce how to skip BLE blocking issue.
+
+1. clone esp-idf-provision-android
+
+```sh
+git clone --branch app-2.0.2 --depth 1 https://github.com/espressif/esp-idf-provision-android.git
+```
+
+2. modify code
+
+Insert the following code in 594 line of `provision/src/main/java/com/espressif/provision/ESPDevice.java`:
+
+```java
+try {
+    sleep(5000);
+} catch (InterruptedException e) {
+}
+```
+
+3. compile and run
+
+You can use your own Android development kit to compile, install it to your mobile phone, then use it to configure Wi-Fi access point for your ESP32.
+
+## 2. Example
+
+This example `ble_provision.toit` shows how to provision ESP32 module connect to designated Wi-Fi access point by PC or App of mobile phone by BLE port.
+
+### 2.1. Install Dependence
+                                                                                                                                            
+Install toit dependence packets in the `examples` folder:
+
+```sh
 cd examples
-toit.pkg install --local --name=YOUR_PACKAGE_NAME ..
+toit.pkg install
 ```
 
-This installs the package located at ".." (here the root of the repository) with
-your package name.
+### 2.2 Compile and Download
 
-Consequently examples and tests can import the package as if it was installed
-from the Internet. This way, tests and examples use the same syntax as
-users of the package.
+Configure designated application by following steps in the root folder of toit:
 
-## Publish
-Make sure to run `toit.pkg describe` to verify that the data is correct.
+```sh
+cd toit
+make menuconfig
+```
 
-This repository comes with a `.github/workflows/publish.xml` file which automatically
-publishes the Toit package for every release. You can just draft a new release on
-Github.
-It is important that the release has a semver tag (like `v1.2.3`).
+The configuration is as following:
 
-Alternatively, a package can be published by hand:
-0. Ensure that everything looks good (`toit.pkg describe`).
-1. Add a semver tag (like `v1.0.0`).
-2. Go to https://pkg.toit.io/publish and submit your package.
+```sh
+Component config  --->
+    Toit  --->
+        ($PATH/toit-provision/examples/ble_provision.toit) Entry point
+```
+
+* Note: Use real path to instead of $PATH
+
+Run the following command to start to compile, download and flash the example:
+
+```sh
+make flash
+```

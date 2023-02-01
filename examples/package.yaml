@@ -1,1 +1,6 @@
-# Toit Package File.
+dependencies:
+  protobuf:
+    url: github.com/toitware/toit-protobuf
+    version: ^1.1.0
+  provision:
+    path: ..
