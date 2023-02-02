@@ -1,5 +1,4 @@
 prefixes:
-  protobuf: toit-protobuf
   provision: ..
 packages:
   ..:

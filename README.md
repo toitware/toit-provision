@@ -4,11 +4,17 @@ Provision ESP32 connect to designated Wi-Fi access point by PC or App of mobile 
 
 ## 1. Tool and App
 
-There is an issue in BLE provision of esp-idf, it is that esp-idf only supports blocking mode which cause BLE protocol stack blocks for about 4 seconds without response for any outside request. To skip this issue, you should modify provision source code of PC and mobile APP. Please know that the supplied modification as following is the easiest method not the best method.
+There is an issue with BLE provisioning of the used esp-idf. It onlysupports supports
+blocking mode which causes the BLE protocol stack to block for about 4 seconds
+without response for any outside requests. To work around this issue, modify
+the provision source code of the PC and mobile applications. While the proposed
+modifications are a bit hackish (and come with a 5 second delay) they are easy
+and short.
 
 ### 1.1 Tool
 
-It is remanded to use esp-idf v5.0 BLE provision tool, operation steps are as following:
+It is recommended to use the BLE provisioning tool that comes with the esp-idf v5.0.
+Follow the following steps to obtain and modify it:
 
 1. clone esp-idf
 
@@ -42,8 +48,10 @@ python3 tools/esp_prov/esp_prov.py --transport ble --sec_ver 0 --service_name $S
 
 ### 1.2 App
 
-Because this toit BLE provision has not supported security mode, so it is remanded to use older version of android APP, if you know how to modify the APP source code to select non-encrypt mode, it will be better to use the newest version.
-Following details just introduce how to skip BLE blocking issue.
+This package does not yet support the secure mode for BLE provisioning. As such,
+we recommend to use an older version of the Android app. Alternatively, you can
+also modify the newest version so it doesn't use the secure mode.
+Follow the following steps to add the workaround for the BLE blocking issue.
 
 1. clone esp-idf-provision-android
 
@@ -64,11 +72,13 @@ try {
 
 3. compile and run
 
-You can use your own Android development kit to compile, install it to your mobile phone, then use it to configure Wi-Fi access point for your ESP32.
+You can use your own Android development kit to compile, install it on your mobile phone,
+then use it to configure Wi-Fi access point for your ESP32.
 
 ## 2. Example
 
-This example `ble_provision.toit` shows how to provision ESP32 module connect to designated Wi-Fi access point by PC or App of mobile phone by BLE port.
+The example `ble_provision.toit` shows how to integrate BLE provisioning on an
+ESP32 module so its WiFi can be configured by the PC or Android app.
 
 ### 2.1. Install Dependence
                                                                                                                                             

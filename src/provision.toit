@@ -364,8 +364,7 @@ class ConfigProcess_ extends Process_:
     resp_msg := {
         MSG: MSG_RESP_APPY
     }
-    resp := protobuf_map_to_bytes_ --message=resp_msg
-    return resp   
+    return protobuf_map_to_bytes_ --message=resp_msg 
 
   req_status -> ByteArray:
     ap ::= network.access_point
@@ -382,8 +381,7 @@ class ConfigProcess_ extends Process_:
         }
       }
     }
-    resp := protobuf_map_to_bytes_ --message=resp_msg
-    return resp     
+    return protobuf_map_to_bytes_ --message=resp_msg  
 
   run data/ByteArray -> ByteArray:
     resp := #[]
@@ -411,7 +409,7 @@ class Provision:
   security_/Security_ := ?
   latch_ := monitor.Latch
 
-  constructor.ble  service_name/string security/Security_:
+  constructor.ble service_name/string security/Security_:
     return Provision.ble_with_uuid SERVICE_UUID service_name security
   
   constructor.ble_with_uuid service_uuid/ByteArray service_name/string .security_/Security_:
@@ -426,7 +424,7 @@ class Provision:
     service_.start
   
   wait -> none:
-    ret := latch_.get
+    latch_.get
 
   static common_process_ security/Security_ process/Process_ characteristic/BLECharacteristic_:
     encrypt_data := characteristic.read

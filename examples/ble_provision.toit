@@ -17,8 +17,8 @@ main:
   prov.start
 
   note ::= """
-      Copy paste the below URL in a browser:\n\n\
-      \
+      Copy paste the below URL in a browser:
+
       https://espressif.github.io/esp-jumpstart/qrcode.html?data=\
       {"ver":"v1","name":"$(service_name)","transport":"ble", "security":0}"""
   print note
