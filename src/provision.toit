@@ -407,6 +407,10 @@ class ConfigProcess_ extends Process_:
 class Provision:
   service_/BLEService_ := ?
   security_/Security_ := ?
+  version_task_/Task? := null
+  config_task_/Task? := null
+  session_task_/Task? := null
+  scan_task_/Task? := null
   latch_ := monitor.Latch
 
   constructor.ble service_name/string security/Security_:
@@ -414,17 +418,20 @@ class Provision:
   
   constructor.ble_with_uuid service_uuid/ByteArray service_name/string .security_/Security_:
     service_ = BLEService_ service_uuid service_name
+    add_finalizer this::
+      this.close
 
   start -> none:
-    task:: ch_ver_task_
-    task:: ch_config_task_
-    task:: ch_session_task_
-    task:: ch_scan_task_
+    if version_task_: throw "Already running"
+    version_task_ = task:: ch_version_task_
+    config_task_ = task:: ch_config_task_
+    session_task_ = task:: ch_session_task_
+    scan_task_ = task:: ch_scan_task_
 
     service_.start
-  
-  wait -> none:
-    latch_.get
+
+  wait -> bool:
+    return latch_.get
 
   static common_process_ security/Security_ process/Process_ characteristic/BLECharacteristic_:
     encrypt_data := characteristic.read
@@ -434,7 +441,7 @@ class Provision:
       data = security.encrypt resp
       characteristic.write data
 
-  ch_ver_task_:
+  ch_version_task_:
     characteristic := service_["proto-ver"]
     session_process := VerProcess_ security_.version
     common_process_ security_ session_process characteristic
@@ -456,6 +463,25 @@ class Provision:
     session_process := ConfigProcess_ latch_
     while true:
       common_process_ security_ session_process characteristic  
+
+  /**
+  Closes the provisioning and shuts down the service.
+  */
+  close:
+    if version_task_:
+      version_task_.cancel
+      version_task_ = null
+    if session_task_:
+      session_task_.cancel
+      session_task_ = null
+    if scan_task_:
+      scan_task_.cancel
+      scan_task_ = null
+    if config_task_:
+      config_task_.cancel
+      config_task_ = null
+
+    if not latch_.has_value: latch_.set false
 
 protobuf_map_to_bytes_ --message/Map /** field:value */ -> ByteArray:
   buffer := bytes.Buffer

@@ -23,4 +23,8 @@ main:
       {"ver":"v1","name":"$(service_name)","transport":"ble", "security":0}"""
   print note
 
-  prov.wait
+  ret := prov.wait
+  if ret:
+    print "Provisioning is successful."
+
+  prov.close
