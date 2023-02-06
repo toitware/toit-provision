@@ -423,6 +423,7 @@ class Provision:
 
   start -> none:
     if version_task_: throw "Already running"
+    if latch_.has_value: throw "CLOSED"
     version_task_ = task:: ch_version_task_
     config_task_ = task:: ch_config_task_
     session_task_ = task:: ch_session_task_
