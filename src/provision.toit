@@ -13,30 +13,30 @@ import protobuf
 SERVICE_UUID ::= #[0x02, 0x1a, 0x90, 0x04, 0x03, 0x82, 0x4a, 0xea,
                    0xbf, 0xf4, 0x6b, 0x3f, 0x1c, 0x5a, 0xdf, 0xb4]
 
-/** This security mode doesn't encrypt/decrypt */
+/** This security mode doesn't encrypt/decrypt. */
 SECURITY0 := Security0_
 
 class BLECharacteristic_:
-  characteristic/ble.LocalCharacteristic := ?
+  characteristic/ble.LocalCharacteristic
 
   static UUID_BASE ::= 0xff
-  static PROPERTYS ::= ble.CHARACTERISTIC_PROPERTY_READ | ble.CHARACTERISTIC_PROPERTY_WRITE
+  static PROPERTIES ::= ble.CHARACTERISTIC_PROPERTY_READ | ble.CHARACTERISTIC_PROPERTY_WRITE
   static PERMISSIONS ::= ble.CHARACTERISTIC_PERMISSION_READ | ble.CHARACTERISTIC_PERMISSION_WRITE
   static DESC_UUID ::= ble.BleUuid #[0x00, 0x00, 0x29, 0x01, 0x00, 0x00, 0x10, 0x00,
                                      0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb]
 
   constructor service/ble.LocalService service_uuid/ByteArray id/int desc/string:
-    uuid := ByteArray service_uuid.size : service_uuid[it]
+    uuid := service_uuid.copy
     uuid[2] = UUID_BASE
     uuid[3] = id
 
     characteristic = service.add_characteristic
         ble.BleUuid uuid
-        --properties=PROPERTYS
+        --properties=PROPERTIES
         --permissions=PERMISSIONS
     characteristic.add_descriptor
         DESC_UUID
-        PROPERTYS
+        PROPERTIES
         PERMISSIONS
         desc.to_byte_array
   
@@ -50,8 +50,8 @@ class BLEService_:
   uuid/ByteArray
   name/string
 
-  characteristics/Map := ?
-  peripheral/ble.Peripheral := ?
+  characteristics/Map
+  peripheral/ble.Peripheral
 
   static CHARACTERISTICS ::= [
     {"name":"prov-scan",    "id":0x50},
@@ -85,18 +85,18 @@ class BLEService_:
             --service_classes=[ble.BleUuid uuid]
             --flags=ble.BLE_ADVERTISE_FLAGS_GENERAL_DISCOVERY |
                     ble.BLE_ADVERTISE_FLAGS_BREDR_UNSUPPORTED
-        --interval=Duration --us=160000
+        --interval=Duration --ms=160
         --connection_mode=ble.BLE_CONNECT_MODE_UNDIRECTIONAL
   
   operator [] name/string -> BLECharacteristic_:
     return characteristics[name]
 
-abstract class Security_:
-  abstract encrypt data/ByteArray -> ByteArray
-  abstract decrypt data/ByteArray -> ByteArray
-  abstract version -> int
+interface Security_:
+  encrypt data/ByteArray -> ByteArray
+  decrypt data/ByteArray -> ByteArray
+  version -> int
 
-class Security0_ extends Security_:
+class Security0_ implements Security_:
   encrypt data/ByteArray -> ByteArray:
     return data
 
@@ -106,27 +106,26 @@ class Security0_ extends Security_:
   version -> int:
     return 0
 
-abstract class Process_:
-  abstract run data/ByteArray -> ByteArray
+interface Process_:
+  run data/ByteArray -> ByteArray
 
-class VerProcess_ extends Process_:
+class VerProcess_ implements Process_:
   static VERSION := "v1.1"
   static BASE_CAPS := ["wifi_scan"]
 
-  resp_msg/ByteArray := ? 
+  resp_msg/ByteArray
 
   constructor version/int:
     caps := List BASE_CAPS.size: BASE_CAPS[it]
     if version == 0:
       caps.add "no_sec"
     ver_map := {"prov":{"ver":VERSION, "sec_ver":version, "cap":caps}}
-    ver_json := json.stringify ver_map
-    resp_msg = ver_json.to_byte_array
+    resp_msg = json.encode ver_map
 
   run data/ByteArray -> ByteArray:
     return resp_msg
 
-class SessionProcess_ extends Process_:
+class SessionProcess_ implements Process_:
   static SESSION_0 ::= 10 /** type: message */
   static SESSION_0_MSG ::= 1 /** type: enum */
   static SESSION_0_REQ ::= 20 /** type: message */
@@ -143,8 +142,7 @@ class SessionProcess_ extends Process_:
       }
     }
 
-    resp := protobuf_map_to_bytes_ --message=resp_msg
-    return resp
+    return protobuf_map_to_bytes_ --message=resp_msg
 
   run data/ByteArray -> ByteArray:
     resp := #[]
@@ -152,11 +150,11 @@ class SessionProcess_ extends Process_:
     r := protobuf.Reader data
     r.read_message:
       r.read_field SESSION_0:
-        resp = sec0 r
+        return sec0 r
 
     return resp
 
-class ScanProcess_ extends Process_:
+class ScanProcess_ implements Process_:
   static MSG ::= 1 /** type: enum */
 
   /** Message enum number */
@@ -198,13 +196,8 @@ class ScanProcess_ extends Process_:
   scan_period/int := 120
   msg_offset/int := 0
 
-  comp_ap_by_rssi a/wifi.AccessPoint b/wifi.AccessPoint -> int:
-    if a.rssi < b.rssi:
-      return 1
-    else if a.rssi == b.rssi:
-      return 0
-    else:
-      return -1
+  compare_ap_by_rssi a/wifi.AccessPoint b/wifi.AccessPoint -> int:
+    return -(a.rssi.compare_to b.rssi)
 
   init_parameters -> none:
     ap_list = List
@@ -219,15 +212,15 @@ class ScanProcess_ extends Process_:
         channels
         --period_per_channel_ms=scan_period
     ap_list.sort --in_place=true:
-      | a b | comp_ap_by_rssi a b
+      | a b | compare_ap_by_rssi a b
     size := min ap_list.size SCAN_AP_MAX
-    ap_list = ap_list[0..size]
+    ap_list = ap_list[..size]
     scan_done = true
 
   scan_start r/protobuf.Reader -> ByteArray:
     r.read_message:
       r.read_field REQ_START_BLOCK:
-        /** block=true is not supported, because it blocks NimBLE system task */
+        /** block=true is not supported, because it blocks NimBLE system task. */
         block := r.read_primitive protobuf.PROTOBUF_TYPE_INT32
       r.read_field REQ_START_PERIOD:
         scan_period = r.read_primitive protobuf.PROTOBUF_TYPE_INT32
@@ -238,8 +231,7 @@ class ScanProcess_ extends Process_:
     resp_msg := {
         MSG: MSG_RESP_START
     }
-    resp := protobuf_map_to_bytes_ --message=resp_msg
-    return resp
+    return protobuf_map_to_bytes_ --message=resp_msg
   
   scan_status -> ByteArray:
     buffer := bytes.Buffer
@@ -256,8 +248,7 @@ class ScanProcess_ extends Process_:
       resp_msg[RESP_STATUS][RESP_STATUS_FINISHED] = 1
       resp_msg[RESP_STATUS][RESP_STATUS_COUNT] = ap_list.size
 
-    resp := protobuf_map_to_bytes_ --message=resp_msg
-    return resp
+    return protobuf_map_to_bytes_ --message=resp_msg
   
   scan_result r/protobuf.Reader -> ByteArray:
     r.read_message:
@@ -286,8 +277,7 @@ class ScanProcess_ extends Process_:
         RESP_RESULT_ENTRIES: ap_info_msg
       }
     }
-    resp := protobuf_map_to_bytes_ --message=resp_msg
-    return resp
+    return protobuf_map_to_bytes_ --message=resp_msg
 
   run data/ByteArray -> ByteArray:
     resp := #[]
@@ -308,7 +298,7 @@ class ScanProcess_ extends Process_:
 
     return resp
 
-class ConfigProcess_ extends Process_:
+class ConfigProcess_ implements Process_:
   static MSG ::= 1 /** type: enum */
 
   /** Message enum number */
@@ -339,7 +329,7 @@ class ConfigProcess_ extends Process_:
   password/string := ""
   network := null
 
-  latch/monitor.Latch := ?
+  latch/monitor.Latch
 
   constructor .latch/monitor.Latch:
 
@@ -353,8 +343,7 @@ class ConfigProcess_ extends Process_:
     resp_msg := {
       MSG: MSG_RESP_CONFIG
     }
-    resp := protobuf_map_to_bytes_ --message=resp_msg
-    return resp
+    return protobuf_map_to_bytes_ --message=resp_msg
 
   set_apply -> ByteArray:
     network = wifi.open

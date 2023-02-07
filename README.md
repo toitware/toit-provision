@@ -4,7 +4,7 @@ Provision ESP32 connect to designated Wi-Fi access point by PC or App of mobile 
 
 ## 1. Tool and App
 
-There is an issue with BLE provisioning of the used esp-idf. It onlysupports supports
+There is an issue with BLE provisioning of the used esp-idf. It only supports
 blocking mode which causes the BLE protocol stack to block for about 4 seconds
 without response for any outside requests. To work around this issue, modify
 the provision source code of the PC and mobile applications. While the proposed
