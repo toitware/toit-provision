@@ -134,7 +134,7 @@ class SessionProcess_ implements Process_:
   sec0 r/protobuf.Reader -> ByteArray:
     r.read_message:
       r.read_field SESSION_0_REQ:
-        tmp := r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
 
     resp_msg := {
       SESSION_0: {
@@ -291,7 +291,7 @@ class ScanProcess_ implements Process_:
       r.read_field REQ_START:
         resp = scan_start r
       r.read_field REQ_STATUS:
-        tmp := r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
         resp = scan_status
       r.read_field REQ_RESULT:
         resp = scan_result r
@@ -384,11 +384,11 @@ class ConfigProcess_ implements Process_:
       r.read_field SET_CONFIG:
         resp = set_config r
       r.read_field REQ_STATUS:
-        tmp := r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
         resp = req_status
         latch.set true
       r.read_field REQ_APPLY:
-        tmp := r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
         resp = set_apply
 
     return resp
