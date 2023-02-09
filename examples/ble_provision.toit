@@ -17,14 +17,14 @@ main:
   prov.start
 
   note ::= """
-      Copy paste the below URL in a browser:
+      Open the following URL in a browser:
 
       https://espressif.github.io/esp-jumpstart/qrcode.html?data=\
       {"ver":"v1","name":"$(service_name)","transport":"ble", "security":0}"""
   print note
 
-  ret := prov.wait
-  if ret:
+  successful := prov.wait
+  if successful:
     print "Provisioning is successful."
 
   prov.close

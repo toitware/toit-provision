@@ -211,7 +211,7 @@ class ScanProcess_ implements Process_:
     ap_list = wifi.scan
         channels
         --period_per_channel_ms=scan_period
-    ap_list.sort --in_place=true:
+    ap_list.sort --in_place:
       | a b | compare_ap_by_rssi a b
     size := min ap_list.size SCAN_AP_MAX
     ap_list = ap_list[..size]
@@ -239,10 +239,10 @@ class ScanProcess_ implements Process_:
 
     resp_msg := {
         MSG: MSG_RESP_STATUS,
-        RESP_STATUS: Map
+        RESP_STATUS: {:}
     }
 
-    if scan_done == false:
+    if not scan_done:
       resp_msg[RESP_STATUS][RESP_STATUS_FINISHED] = 0
     else:
       resp_msg[RESP_STATUS][RESP_STATUS_FINISHED] = 1
@@ -331,7 +331,7 @@ class ConfigProcess_ implements Process_:
 
   latch/monitor.Latch
 
-  constructor .latch/monitor.Latch:
+  constructor .latch:
 
   set_config r/protobuf.Reader -> ByteArray:
     r.read_message:
@@ -407,8 +407,6 @@ class Provision:
   
   constructor.ble_with_uuid service_uuid/ByteArray service_name/string .security_/Security_:
     service_ = BLEService_ service_uuid service_name
-    add_finalizer this::
-      this.close
 
   start -> none:
     if version_task_: throw "Already running"
@@ -477,18 +475,17 @@ protobuf_map_to_bytes_ --message/Map /** field:value */ -> ByteArray:
   buffer := bytes.Buffer
   w := protobuf.Writer buffer
 
-  message.do:
-    if it is not int:
+  message.do: | key value |
+    if key is not int:
       throw "WRONG_OBJECT_TYPE"
-    value := message[it]
     if value is int:
-      w.write_primitive protobuf.PROTOBUF_TYPE_INT32 value --as_field=it --oneof=true
+      w.write_primitive protobuf.PROTOBUF_TYPE_INT32 value --as_field=key --oneof=true
     else if value is string:
-      w.write_primitive protobuf.PROTOBUF_TYPE_STRING value --as_field=it
+      w.write_primitive protobuf.PROTOBUF_TYPE_STRING value --as_field=key
     else if value is ByteArray:
-      w.write_primitive protobuf.PROTOBUF_TYPE_BYTES value --as_field=it
+      w.write_primitive protobuf.PROTOBUF_TYPE_BYTES value --as_field=key
     else if value is List:
-      id := it
+      id := key
       value.do:
         w.write_primitive
             protobuf.PROTOBUF_TYPE_BYTES
@@ -498,11 +495,12 @@ protobuf_map_to_bytes_ --message/Map /** field:value */ -> ByteArray:
       w.write_primitive 
           protobuf.PROTOBUF_TYPE_BYTES
           protobuf_map_to_bytes_ --message=value
-          --as_field=it
+          --as_field=key
     else:
       throw "WRONG_OBJECT_TYPE"
 
   return buffer.bytes
 
 get_mac_address -> ByteArray:
+  // TODO: don't use a primitive.
   #primitive.esp32.get_mac_address
