@@ -1,7 +1,9 @@
-# Toit Package File.
 
-# If no name is set, the title of the README.md is used.
-# name: PACKAGE_NAME
-
-# If no description is given, the first paragraph of the README.md is used.
-# description: PACKAGE_DESCRIPTION
+name: provision
+description: Package to support provisioning (setting the WiFi credentials) of an ESP32 through BLE using a PC or an Android app.
+environment:
+  sdk: ^2.0.0-alpha.41
+dependencies:
+  protobuf:
+    url: github.com/toitware/toit-protobuf
+    version: ^1.1.0
