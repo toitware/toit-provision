@@ -8,8 +8,8 @@ import encoding.hex
 import provision
 
 main:
-  id := provision.get_mac_address[3..]
-  service_name ::= "PROV_" + (hex.encode id)
+  id := provision.get_mac_address[5..]
+  service_name := "PROV_" + (hex.encode id)
 
   prov := provision.Provision.ble
       service_name

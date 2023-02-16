@@ -1,4 +1,3 @@
-
 name: provision
 description: Package to support provisioning (setting the WiFi credentials) of an ESP32 through BLE using a PC or an Android app.
 environment:

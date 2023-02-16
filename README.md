@@ -53,21 +53,32 @@ we recommend to use an older version of the Android app. Alternatively, you can
 also modify the newest version so it doesn't use the secure mode.
 Follow the following steps to add the workaround for the BLE blocking issue.
 
-1. clone esp-idf-provision-android
+1. clone esp-idf-provisioning-android
 
 ```sh
-git clone --branch app-2.0.2 --depth 1 https://github.com/espressif/esp-idf-provision-android.git
+git clone --branch app-2.0.2 --depth 1 https://github.com/espressif/esp-idf-provisioning-android.git
 ```
 
 2. modify code
 
-Insert the following code in 594 line of `provision/src/main/java/com/espressif/provision/ESPDevice.java`:
+Insert a sleep after the call to `processStartScanResponse`, by applying the following patch:
 
-```java
-try {
-    sleep(5000);
-} catch (InterruptedException e) {
-}
+``` diff
+diff --git a/provisioning/src/main/java/com/espressif/provisioning/ESPDevice.java b/provisioning/src/main/java/com/espressif/provisioning/ESPDevice.java
+index 939e1e0..83dad54 100644
+--- a/provisioning/src/main/java/com/espressif/provisioning/ESPDevice.java
++++ b/provisioning/src/main/java/com/espressif/provisioning/ESPDevice.java
+@@ -592,6 +592,11 @@ public class ESPDevice {
+
+                 processStartScanResponse(returnData);
+
++                try {
++                    sleep(5000);
++                } catch (InterruptedException e) {
++                }
++
+                 byte[] getScanStatusCmd = MessengeHelper.prepareGetWiFiScanStatusMsg();
+                 session.sendDataToDevice(ESPConstants.HANDLER_PROV_SCAN, getScanStatusCmd, new ResponseListener() {
 ```
 
 3. compile and run
@@ -75,41 +86,92 @@ try {
 You can use your own Android development kit to compile, install it on your mobile phone,
 then use it to configure Wi-Fi access point for your ESP32.
 
+If you want to use a Github builder to compile the application, you can use the following workflow:
+```yaml
+name: Build
+on:
+  push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./gradlew build -x lint -x test
+      - uses: actions/upload-artifact@v2
+        with:
+          name: apks
+          path: app/build/outputs/apkg
+```
+
 ## 2. Example
 
 The example `ble_provision.toit` shows how to integrate BLE provisioning on an
 ESP32 module so its WiFi can be configured by the PC or Android app.
 
-### 2.1. Install Dependence
-                                                                                                                                            
-Install toit dependence packets in the `examples` folder:
+### With Jaguar
+Installing with Jaguar is mainly for testing, as Jaguar is already set up with
+WiFi credentials.
 
+Install Jaguar as described in the [Jaguar README](https://github.com/toitlang/jaguar/blob/main/README.md).
+
+Flash a new device by following the instructions in the README.
+
+All further commands should be executed in the `examples` folder.
 ```sh
 cd examples
+```
+
+Install the package dependencies:
+```sh
+jag pkg install
+```
+
+Then install the example as a new container:
+```sh
+jag container install -D jag.disabled -D jag.timeout=2m  provision ble_provision.toit
+```
+When the device reboots it will automatically start the provisioning process.
+
+### With the Toit SDK
+Download a Toit SDK from https://github.com/toitlang/toit/releases.
+You will need the `toit-PLATFORM.tar.gz` and a firmware envelope (`firmware-MODEL.gz`).
+
+Unzip the SDK and add the `toit/bin` and `toit/tools` folder to your path.
+
+Unzip the firmware envelope. Make sure to *not* decompress the actual firmware archive file.
+You can use `gunzip` to unzip the zipped file. You should end up with a single file and
+not a folder.
+
+All further commands should be executed in the `examples` folder.
+```sh
+cd examples
+```
+
+#### Install Dependencies
+
+Install the package dependencies in the `examples` folder:
+
+```sh
 toit.pkg install
 ```
 
-### 2.2 Compile and Download
+#### Compile and Flash
 
-Configure designated application by following steps in the root folder of toit:
-
-```sh
-cd toit
-make menuconfig
-```
-
-The configuration is as following:
+Compile the example. From the examples folder:
 
 ```sh
-Component config  --->
-    Toit  --->
-        ($PATH/toit-provision/examples/ble_provision.toit) Entry point
+toit.compile -w ble_provision.snapshot ble_provision.toit
 ```
 
-* Note: Use real path to instead of $PATH
-
-Run the following command to start to compile, download and flash the example:
+Add it to the firmware (where `$FIRMWARE_ENVELOPE` is the path to the firmware envelope):
 
 ```sh
-make flash
+firmware -e "$FIRMWARE_ENVELOPE" container install provision ble_provision.snapshot
 ```
+
+Now you can flash the modified firmware to your ESP32 module.
+
+```sh
+firmware flash -e "$FIRMWARE_ENVELOPE" -p /dev/ttyUSB0
+```
+You might need to change the `/dev/ttyUSB0` to the correct port.
