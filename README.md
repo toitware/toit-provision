@@ -110,7 +110,7 @@ jobs:
 The example `ble_provision.toit` shows how to integrate BLE provisioning on an
 ESP32 module so its WiFi can be configured by the PC or Android app.
 
-### With Jaguar
+### Installing with Jaguar
 Installing with Jaguar is mainly for testing, as Jaguar is already set up with
 WiFi credentials.
 
