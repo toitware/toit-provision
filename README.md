@@ -50,7 +50,9 @@ python3 tools/esp_prov/esp_prov.py --transport ble --sec_ver 0 --service_name $S
 
 This package does not yet support the secure mode for BLE provisioning. As such,
 we recommend to use an older version of the Android app. Alternatively, you can
-also modify the newest version so it doesn't use the secure mode.
+also modify the newest version so it doesn't use the secure mode. For the same reasons,
+only the QR-based provisioning is supported.
+
 Follow the following steps to add the workaround for the BLE blocking issue.
 
 1. clone esp-idf-provisioning-android
