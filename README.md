@@ -88,7 +88,7 @@ index 939e1e0..83dad54 100644
 You can use your own Android development kit to compile, install it on your mobile phone,
 then use it to configure Wi-Fi access point for your ESP32.
 
-If you want to use a Github builder to compile the application, you can use the following workflow:
+If you want to use a GitHub builder to compile the application, you can use the following workflow:
 ```yaml
 name: Build
 on:
