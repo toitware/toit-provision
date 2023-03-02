@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Toitware ApS.
+// Copyright (C) 2022-2023 Toitware ApS.
 // Use of this source code is governed by an MIT-style license that can be
 // found in the package's LICENSE file.
 
@@ -8,24 +8,36 @@ import monitor
 import net.wifi
 import ble
 import protobuf
+import .srp
+import crypto.aes show *
 
 /** This UUID is used in PC and Phone APP by default. */
 SERVICE_UUID ::= #[0x02, 0x1a, 0x90, 0x04, 0x03, 0x82, 0x4a, 0xea,
                    0xbf, 0xf4, 0x6b, 0x3f, 0x1c, 0x5a, 0xdf, 0xb4]
 
-/** This security mode doesn't encrypt/decrypt. */
+/** This security mode 0 doesn't encrypt/decrypt. */
 SECURITY0 := Security0_
+
+/** This security mode 2 use SRP6a + AES-GCM*/
+SECURITY2 salt verifier:
+  return Security2_ salt verifier
 
 class BLECharacteristic_:
   characteristic/ble.LocalCharacteristic
+  encrypted_/bool
+  desc/string
+  recv_task/Task? := null
+  result/ByteArray := #[]
+  sem := monitor.Semaphore --count=1 --limit=1
 
   static UUID_BASE ::= 0xff
+  static READ_TIMEOUT_MS ::= 10 * 1000
   static PROPERTIES ::= ble.CHARACTERISTIC_PROPERTY_READ | ble.CHARACTERISTIC_PROPERTY_WRITE
   static PERMISSIONS ::= ble.CHARACTERISTIC_PERMISSION_READ | ble.CHARACTERISTIC_PERMISSION_WRITE
   static DESC_UUID ::= ble.BleUuid #[0x00, 0x00, 0x29, 0x01, 0x00, 0x00, 0x10, 0x00,
                                      0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb]
 
-  constructor service/ble.LocalService service_uuid/ByteArray id/int desc/string:
+  constructor service/ble.LocalService service_uuid/ByteArray id/int .desc/string .encrypted_/bool:
     uuid := service_uuid.copy
     uuid[2] = UUID_BASE
     uuid[3] = id
@@ -34,17 +46,40 @@ class BLECharacteristic_:
         ble.BleUuid uuid
         --properties=PROPERTIES
         --permissions=PERMISSIONS
+        --read_timeout_ms=READ_TIMEOUT_MS
     characteristic.add_descriptor
         DESC_UUID
         PROPERTIES
         PERMISSIONS
         desc.to_byte_array
   
+    recv_task = task:: recv_task_run
+
+  recv_task_run:
+    characteristic.handle_read_request:
+      sem.down
+      sem.up
+      result
+  
   write data/ByteArray:
-    characteristic.write data
+    result = data
 
   read -> ByteArray:
     return characteristic.read
+  
+  is_encrypted -> bool:
+    return encrypted_
+
+  lock_host_read -> none:
+    sem.down
+  
+  unlock_host_read -> none:
+    sem.up
+  
+  close:
+    if recv_task:
+      recv_task.cancel
+      recv_task = null
 
 class BLEService_:
   uuid/ByteArray
@@ -54,11 +89,11 @@ class BLEService_:
   peripheral/ble.Peripheral
 
   static CHARACTERISTICS ::= [
-    {"name":"prov-scan",    "id":0x50},
-    {"name":"prov-session", "id":0x51},
-    {"name":"prov-config",  "id":0x52},
-    {"name":"proto-ver",    "id":0x53},
-    {"name":"custom-data",  "id":0x54}
+    {"name":"prov-scan",    "id":0x50, "encrypted":true},
+    {"name":"prov-session", "id":0x51, "encrypted":false},
+    {"name":"prov-config",  "id":0x52, "encrypted":true},
+    {"name":"proto-ver",    "id":0x53, "encrypted":false},
+    {"name":"custom-data",  "id":0x54, "encrypted":true}
   ]
 
   constructor .uuid/ByteArray .name/string:
@@ -75,6 +110,7 @@ class BLEService_:
               uuid
               it["id"]
               it["name"]
+              it["encrypted"]
 
     service.deploy
 
@@ -91,12 +127,45 @@ class BLEService_:
   operator [] name/string -> BLECharacteristic_:
     return characteristics[name]
 
+  close:
+    characteristics.do: | key value |
+      value.close
+
 interface Security_:
   encrypt data/ByteArray -> ByteArray
   decrypt data/ByteArray -> ByteArray
+  handshake data/ByteArray -> ByteArray
   version -> int
 
 class Security0_ implements Security_:
+  static SESSION_0 ::= 10 /** type: message */
+  static SESSION_0_MSG ::= 1 /** type: enum */
+  static SESSION_0_REQ ::= 20 /** type: message */
+  static SESSION_0_RESP ::= 21 /** type: message */
+
+  process_msg r/protobuf.Reader -> ByteArray:
+    r.read_message:
+      r.read_field SESSION_0_REQ:
+        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+
+    resp_msg := {
+      SESSION_0: {
+        SESSION_0_MSG: 1 /** 1: no need encryption */
+      }
+    }
+
+    return protobuf_map_to_bytes_ --message=resp_msg
+
+  handshake data/ByteArray -> ByteArray:
+    resp := #[]
+
+    r := protobuf.Reader data
+    r.read_message:
+      r.read_field SESSION_0:
+        return process_msg r
+
+    return resp
+
   encrypt data/ByteArray -> ByteArray:
     return data
 
@@ -105,6 +174,121 @@ class Security0_ implements Security_:
   
   version -> int:
     return 0
+
+class Security2_ implements Security_:
+  static SESSION_VER ::= 2 /** type: enum */
+  static SESSION_VER_SEC_2 ::= 2 /** security mode 2 */
+
+  static SESSION_2 ::= 10 /** type: message */
+  static SESSION_2_MSG ::= 12 /** type: enum */
+  static SESSION_2_MSG_REQ_0 ::= 20 /** type: message */
+  static SESSION_2_MSG_RESP_0 ::= 21 /** type: message */
+  static SESSION_2_MSG_REQ_1 ::= 22 /** type: message */
+  static SESSION_2_MSG_RESP_1 ::= 23 /** type: message */
+
+  static SESSION_2_MSG_ID ::= 1 /** type: enum */
+  static SESSION_2_MSG_ID_REQ_0 ::= 0 /** type: enum */
+  static SESSION_2_MSG_ID_RESP_0 ::= 1 /** type: enum */
+  static SESSION_2_MSG_ID_REQ_1 ::= 2 /** type: enum */
+  static SESSION_2_MSG_ID_RESP_1 ::= 3 /** type: enum */
+
+  static SESSION_2_REQ_0_USER_NAME ::= 1 /** type: bytes */
+  static SESSION_2_REQ_0_PUBLIC_KEY ::= 2 /** type: bytes */
+
+  static SESSION_2_RESP_0_STATUS ::= 1 /** type: enum */
+  static SESSION_2_RESP_0_PUBLIC_KEY ::= 2 /** type: bytes */
+  static SESSION_2_RESP_0_SALT ::= 3 /** type: bytes */
+
+  static SESSION_2_REQ_1_CLIENT_PROOF ::= 1 /** type: bytes */
+
+  static SESSION_2_RESP_1_STATUS ::= 1 /** type: enum */
+  static SESSION_2_RESP_1_DEVICE_PROOF ::= 2 /** type: bytes */
+  static SESSION_2_RESP_1_DEVICE_NONCE ::= 3 /** type: bytes */
+
+  salt_/ByteArray
+
+  srp_/SRP
+  session_key_/ByteArray := #[]
+  user_name_/ByteArray := #[]
+  aes_gcm_iv_/ByteArray := ByteArray 12: random
+
+  constructor .salt_/ByteArray verifier/ByteArray:
+    srp_ = SRP salt_ verifier
+
+  process_msg r/protobuf.Reader -> ByteArray:
+    msg_id := null
+    public_key/ByteArray := #[]
+    client_proof/ByteArray := #[]
+
+    r.read_message:
+      r.read_field SESSION_2_MSG_ID:
+        r.read_primitive protobuf.PROTOBUF_TYPE_INT32
+      r.read_field SESSION_2_MSG_REQ_0:
+        msg_id = SESSION_2_MSG_ID_REQ_0
+        r.read_message:
+          r.read_field SESSION_2_REQ_0_USER_NAME:
+            user_name_ = r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+          r.read_field SESSION_2_REQ_0_PUBLIC_KEY:
+            public_key = r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+      r.read_field SESSION_2_MSG_REQ_1:
+        msg_id = SESSION_2_MSG_ID_REQ_1
+        r.read_message:
+          r.read_field SESSION_2_REQ_1_CLIENT_PROOF:
+            client_proof = r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
+
+    if msg_id == SESSION_2_MSG_ID_REQ_0:
+      session_key_ = srp_.get_session_key public_key
+
+      resp_msg := {
+        SESSION_VER: SESSION_VER_SEC_2,
+        SESSION_2_MSG: {
+          SESSION_2_MSG_ID : SESSION_2_MSG_ID_RESP_0,
+          SESSION_2_MSG_RESP_0: {
+            SESSION_2_RESP_0_PUBLIC_KEY: srp_.gen_service_public_key,
+            SESSION_2_RESP_0_SALT: salt_
+          }
+        }
+      }
+
+      return protobuf_map_to_bytes_ --message=resp_msg
+    else if msg_id == SESSION_2_MSG_ID_REQ_1:
+      device_proof := srp_.exchange_proofs user_name_ client_proof
+
+      resp_msg := {
+        SESSION_VER: SESSION_VER_SEC_2,
+        SESSION_2_MSG: {
+          SESSION_2_MSG_ID : SESSION_2_MSG_ID_RESP_1,
+          SESSION_2_MSG_RESP_1: {
+            SESSION_2_RESP_1_DEVICE_PROOF: device_proof,
+            SESSION_2_RESP_1_DEVICE_NONCE: aes_gcm_iv_
+          }
+        }
+      }
+
+      return protobuf_map_to_bytes_ --message=resp_msg
+    else:
+      return #[]
+
+  handshake data/ByteArray -> ByteArray:
+    resp := #[]
+
+    r := protobuf.Reader data
+    r.read_message:
+      r.read_field SESSION_VER:
+        r.read_primitive protobuf.PROTOBUF_TYPE_INT32
+      r.read_field SESSION_2_MSG:
+        return process_msg r
+
+    return resp
+
+  encrypt data/ByteArray -> ByteArray:
+    return (AesGcm.encryptor session_key_[0..32] aes_gcm_iv_).encrypt data
+
+  decrypt data/ByteArray -> ByteArray:
+    return (AesGcm.decryptor session_key_[0..32] aes_gcm_iv_).decrypt data
+  
+  version -> int:
+    return 2
 
 interface Process_:
   run data/ByteArray -> ByteArray
@@ -126,33 +310,12 @@ class VerProcess_ implements Process_:
     return resp_msg
 
 class SessionProcess_ implements Process_:
-  static SESSION_0 ::= 10 /** type: message */
-  static SESSION_0_MSG ::= 1 /** type: enum */
-  static SESSION_0_REQ ::= 20 /** type: message */
-  static SESSION_0_RESP ::= 21 /** type: message */
+  security_/Security_
 
-  sec0 r/protobuf.Reader -> ByteArray:
-    r.read_message:
-      r.read_field SESSION_0_REQ:
-        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-
-    resp_msg := {
-      SESSION_0: {
-        SESSION_0_MSG: 1 /** 1: no need encryption */
-      }
-    }
-
-    return protobuf_map_to_bytes_ --message=resp_msg
+  constructor .security_/Security_:
 
   run data/ByteArray -> ByteArray:
-    resp := #[]
-
-    r := protobuf.Reader data
-    r.read_message:
-      r.read_field SESSION_0:
-        return sec0 r
-
-    return resp
+    return security_.handshake data
 
 class ScanProcess_ implements Process_:
   static MSG ::= 1 /** type: enum */
@@ -226,7 +389,7 @@ class ScanProcess_ implements Process_:
         scan_period = r.read_primitive protobuf.PROTOBUF_TYPE_INT32
 
     init_parameters
-    task:: scan_task
+    scan_task
 
     resp_msg := {
         MSG: MSG_RESP_START
@@ -329,9 +492,10 @@ class ConfigProcess_ implements Process_:
   password/string := ""
   network := null
 
-  latch/monitor.Latch
+  recv_request_status/bool := false
 
-  constructor .latch:
+  is_done -> bool:
+    return recv_request_status
 
   set_config r/protobuf.Reader -> ByteArray:
     r.read_message:
@@ -386,7 +550,7 @@ class ConfigProcess_ implements Process_:
       r.read_field REQ_STATUS:
         r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
         resp = req_status
-        latch.set true
+        recv_request_status = true
       r.read_field REQ_APPLY:
         r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
         resp = set_apply
@@ -423,35 +587,43 @@ class Provision:
 
   static common_process_ security/Security_ process/Process_ characteristic/BLECharacteristic_:
     encrypt_data := characteristic.read
-    data := security.decrypt encrypt_data
+    characteristic.lock_host_read
+    encrypted := characteristic.is_encrypted
+    data := encrypted ? security.decrypt encrypt_data : encrypt_data
     resp := process.run data
     if resp.size > 0:
-      data = security.encrypt resp
+      data = encrypted ? security.encrypt resp : resp
       characteristic.write data
+    characteristic.unlock_host_read
 
   ch_version_task_:
     characteristic := service_["proto-ver"]
-    session_process := VerProcess_ security_.version
-    common_process_ security_ session_process characteristic
+    ver_process := VerProcess_ security_.version
+    common_process_ security_ ver_process characteristic
 
   ch_session_task_:
     characteristic := service_["prov-session"]
-    session_process := SessionProcess_
+    session_process := SessionProcess_ security_
     while true:
       common_process_ security_ session_process characteristic
 
   ch_scan_task_:
     characteristic := service_["prov-scan"]
-    session_process := ScanProcess_
+    scan_process := ScanProcess_
     while true:
-      common_process_ security_ session_process characteristic
+      common_process_ security_ scan_process characteristic
 
   ch_config_task_:
     characteristic := service_["prov-config"]
-    session_process := ConfigProcess_ latch_
+    config_process := ConfigProcess_
     while true:
-      common_process_ security_ session_process characteristic  
-
+      common_process_ security_ config_process characteristic
+      if config_process.is_done:
+        /**
+        sleep for 1 seconds to wait for host tool or phone APP checking state and disconnecting
+        */
+        sleep --ms=1000
+        latch_.set true
   /**
   Closes the provisioning and shuts down the service.
   */
@@ -468,6 +640,8 @@ class Provision:
     if config_task_:
       config_task_.cancel
       config_task_ = null
+    
+    service_.close
 
     if not latch_.has_value: latch_.set false
 
