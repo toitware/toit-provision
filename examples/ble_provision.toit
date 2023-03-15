@@ -7,11 +7,17 @@
 import encoding.hex
 import provision
 
-sec2_salt ::= #[
+/**
+Salt and verifier generated using the following command:
+`python tools/esp_prov/esp_prov.py --transport ble --sec_ver 2 --sec2_gen_cred --sec2_username wifiprov --sec2_pwd abcd1234`
+*/
+
+SEC2_SALT ::= #[
   0x03, 0x6e, 0xe0, 0xc7, 0xbc, 0xb9, 0xed, 0xa8,
   0x4c, 0x9e, 0xac, 0x97, 0xd9, 0x3d, 0xec, 0xf4]
 
-sec2_verifier ::= #[
+/** See $SEC2_SALT. */
+SEC2_VERIFIER ::= #[
   0x7c, 0x7c, 0x85, 0x47, 0x65, 0x08, 0x94, 0x6d,
   0xd6, 0x36, 0xaf, 0x37, 0xd7, 0xe8, 0x91, 0x43,
   0x78, 0xcf, 0xfd, 0x61, 0x6c, 0x59, 0xd2, 0xf8,
@@ -61,14 +67,16 @@ sec2_verifier ::= #[
   0xe6, 0xf6, 0x53, 0xc8, 0x31, 0xa8, 0x78, 0xde,
   0x50, 0x40, 0xf7, 0x62, 0xde, 0x36, 0xb2, 0xba]
 
-user_name ::= "wifiprov"
-user_key ::= "abcd1234"
+USER_NAME ::= "wifiprov"
+USER_KEY ::= "abcd1234"
 
 main:
   id := provision.get_mac_address[3..]
   service_name := "PROV_" + (hex.encode id)
 
-  security := provision.SECURITY2 sec2_salt sec2_verifier
+  security := provision.security2
+      --salt=SEC2_SALT
+      --verifier=SEC2_VERIFIER
 
   prov := provision.Provision.ble
       service_name
@@ -80,7 +88,7 @@ main:
       Open the following URL in a browser:
 
       https://espressif.github.io/esp-jumpstart/qrcode.html?data=\
-      {"ver":"v1","name":"$(service_name)","transport":"ble", "username"=$user_name, "pop"=$user_key}"""
+      {"ver":"v1","name":"$(service_name)","transport":"ble","username":$USER_NAME,"pop":$USER_KEY}"""
   print note
 
   successful := prov.wait

@@ -2,6 +2,14 @@
 // Use of this source code is governed by an MIT-style license that can be
 // found in the package's LICENSE file.
 
+/**
+An implementation of the Secure Remote Password protocol.
+
+SRP is a password authenticated key-exchange where the client proves that it knows
+the key without ever sending it to the server. In fact, the server itself doesn't know the
+password.
+*/
+
 import bignum show *
 import crypto.sha show *
 

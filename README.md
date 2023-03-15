@@ -4,6 +4,8 @@ Provision ESP32 connect to designated Wi-Fi access point by PC or App of mobile 
 
 ## 1. Tool and App
 
+A device that uses this library can be provisioned either from a PC or with an APP.
+
 ### 1.1 Tool
 
 It is recommended to use the BLE provisioning tool that comes with the esp-idf v5.0.1.
@@ -34,21 +36,26 @@ python3 tools/esp_prov/esp_prov.py --transport ble --sec_ver 2 --service_name $S
 ### 1.2 App
 
 This package supports the secure mode 2 for BLE provisioning. As such,
-we recommend to use newer version of the Android app which supports secure mode 2,
-you can down Android app from [Here](https://github.com/espressif/esp-idf-provisioning-android/releases/download/Provisioning_App_Release_2.1.0/ESP_BLE_Prov_2_1_0.apk).
+we recommend to use newer version of the Android app which supports secure mode 2.
+You can download the Android app from the official
+[Play store](https://play.google.com/store/apps/details?id=com.espressif.provble) or
+from the [Github release page](https://github.com/espressif/esp-idf-provisioning-android/releases/download/Provisioning_App_Release_2.1.0/ESP_BLE_Prov_2_1_0.apk).
 
 ## 2. Example
 
 The example `ble_provision.toit` shows how to integrate BLE provisioning on an
 ESP32 module so its WiFi can be configured by the PC or Android app.
 
-- This example uses security 2 mode, and this mode uses SRPa6 to exchange session key and AES-GCM to encrypt session, you can use following command to generate `sec2_salt` and `sec2_verifier`:
+- This example uses security 2 mode, which uses SRPa6 to exchange session
+  key and AES-GCM to encrypt the session, you can use following command to generate
+  the `sec2_salt` and `sec2_verifier`:
 
   ```sh
   cd esp-idf
   python tools/esp_prov/esp_prov.py --transport ble --sec_ver 2 --sec2_gen_cred --sec2_username wifiprov --sec2_pwd abcd1234
   ```
-  You can also use your own `sec2_username` and `sec2_pwd`, but you should keep these configuration consistent in `3. run script`.
+  You can also use your own `sec2_username` and `sec2_pwd`, as long as you provide these
+  credentials when provisioning (for example in step 3 above).
 
 ### Installing with Jaguar
 Installing with Jaguar is mainly for testing, as Jaguar is already set up with
