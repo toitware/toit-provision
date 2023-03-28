@@ -7,9 +7,16 @@ import encoding.json
 import monitor
 import net.wifi
 import ble
+import crypto.aes show *
 import protobuf
 import .srp
-import crypto.aes show *
+import .proto.session_pb
+import .proto.sec0_pb
+import .proto.sec2_pb
+import .proto.constants_pb
+import .proto.wifi_scan_pb
+import .proto.wifi_config_pb
+import .proto.wifi_constants_pb
 
 /** This UUID is used in PC and Phone APP by default. */
 SERVICE_UUID ::= #[0x02, 0x1a, 0x90, 0x04, 0x03, 0x82, 0x4a, 0xea,
@@ -132,33 +139,26 @@ interface Security:
   version -> int
 
 class Security0_ implements Security:
-  static SESSION_0 ::= 10 /** type: message */
-  static SESSION_0_MSG ::= 1 /** type: enum */
-  static SESSION_0_REQ ::= 20 /** type: message */
-  static SESSION_0_RESP ::= 21 /** type: message */
-
-  process_msg r/protobuf.Reader -> ByteArray:
-    r.read_message:
-      r.read_field SESSION_0_REQ:
-        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-
-    resp_msg := {
-      SESSION_0: {
-        SESSION_0_MSG: 1 /** 1: no need encryption */
-      }
-    }
-
-    return protobuf_map_to_bytes_ --message=resp_msg
 
   handshake data/ByteArray -> ByteArray:
-    resp := #[]
+    resp_msg := null
 
-    r := protobuf.Reader data
-    r.read_message:
-      r.read_field SESSION_0:
-        return process_msg r
+    session := SessionData.deserialize (protobuf.Reader data)
+    if session.sec_ver != version:
+      throw "Session version does not match"
 
-    return resp
+    ses0 := session.proto_sec0
+    if ses0.msg == Sec0MsgType_S0_Session_Command:
+      resp_msg = SessionData
+          --sec_ver=version
+          --proto_sec0=Sec0Payload
+              --msg=Sec0MsgType_S0_Session_Response
+              --payload_sr=S0SessionResp
+                  --status=Status_Success
+    else:
+      throw "Session 0 message is not supported"
+
+    return protobuf_message_to_bytes_ resp_msg
 
   encrypt data/ByteArray -> ByteArray:
     return data
@@ -167,38 +167,9 @@ class Security0_ implements Security:
     return data
   
   version -> int:
-    return 0
+    return SecSchemeVersion_SecScheme0
 
 class Security2_ implements Security:
-  static SESSION_VER ::= 2 /** type: enum */
-  static SESSION_VER_SEC_2 ::= 2 /** security mode 2 */
-
-  static SESSION_2 ::= 10 /** type: message */
-  static SESSION_2_MSG ::= 12 /** type: enum */
-  static SESSION_2_MSG_REQ_0 ::= 20 /** type: message */
-  static SESSION_2_MSG_RESP_0 ::= 21 /** type: message */
-  static SESSION_2_MSG_REQ_1 ::= 22 /** type: message */
-  static SESSION_2_MSG_RESP_1 ::= 23 /** type: message */
-
-  static SESSION_2_MSG_ID ::= 1 /** type: enum */
-  static SESSION_2_MSG_ID_REQ_0 ::= 0 /** type: enum */
-  static SESSION_2_MSG_ID_RESP_0 ::= 1 /** type: enum */
-  static SESSION_2_MSG_ID_REQ_1 ::= 2 /** type: enum */
-  static SESSION_2_MSG_ID_RESP_1 ::= 3 /** type: enum */
-
-  static SESSION_2_REQ_0_USER_NAME ::= 1 /** type: bytes */
-  static SESSION_2_REQ_0_PUBLIC_KEY ::= 2 /** type: bytes */
-
-  static SESSION_2_RESP_0_STATUS ::= 1 /** type: enum */
-  static SESSION_2_RESP_0_PUBLIC_KEY ::= 2 /** type: bytes */
-  static SESSION_2_RESP_0_SALT ::= 3 /** type: bytes */
-
-  static SESSION_2_REQ_1_CLIENT_PROOF ::= 1 /** type: bytes */
-
-  static SESSION_2_RESP_1_STATUS ::= 1 /** type: enum */
-  static SESSION_2_RESP_1_DEVICE_PROOF ::= 2 /** type: bytes */
-  static SESSION_2_RESP_1_DEVICE_NONCE ::= 3 /** type: bytes */
-
   salt_/ByteArray
 
   srp_/SRP
@@ -210,71 +181,41 @@ class Security2_ implements Security:
   constructor .salt_/ByteArray verifier/ByteArray:
     srp_ = SRP salt_ verifier
 
-  process_msg r/protobuf.Reader -> ByteArray:
-    msg_id := null
-    public_key/ByteArray := #[]
-    client_proof/ByteArray := #[]
-
-    r.read_message:
-      r.read_field SESSION_2_MSG_ID:
-        r.read_primitive protobuf.PROTOBUF_TYPE_INT32
-      r.read_field SESSION_2_MSG_REQ_0:
-        msg_id = SESSION_2_MSG_ID_REQ_0
-        r.read_message:
-          r.read_field SESSION_2_REQ_0_USER_NAME:
-            user_name_ = r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-          r.read_field SESSION_2_REQ_0_PUBLIC_KEY:
-            public_key = r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field SESSION_2_MSG_REQ_1:
-        msg_id = SESSION_2_MSG_ID_REQ_1
-        r.read_message:
-          r.read_field SESSION_2_REQ_1_CLIENT_PROOF:
-            client_proof = r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-
-    if msg_id == SESSION_2_MSG_ID_REQ_0:
-      session_key_ = srp_.get_session_key public_key
-
-      resp_msg := {
-        SESSION_VER: SESSION_VER_SEC_2,
-        SESSION_2_MSG: {
-          SESSION_2_MSG_ID : SESSION_2_MSG_ID_RESP_0,
-          SESSION_2_MSG_RESP_0: {
-            SESSION_2_RESP_0_PUBLIC_KEY: srp_.gen_service_public_key,
-            SESSION_2_RESP_0_SALT: salt_
-          }
-        }
-      }
-
-      return protobuf_map_to_bytes_ --message=resp_msg
-    else if msg_id == SESSION_2_MSG_ID_REQ_1:
-      device_proof := srp_.exchange_proofs user_name_ client_proof
-
-      resp_msg := {
-        SESSION_VER: SESSION_VER_SEC_2,
-        SESSION_2_MSG: {
-          SESSION_2_MSG_ID : SESSION_2_MSG_ID_RESP_1,
-          SESSION_2_MSG_RESP_1: {
-            SESSION_2_RESP_1_DEVICE_PROOF: device_proof,
-            SESSION_2_RESP_1_DEVICE_NONCE: aes_gcm_iv_
-          }
-        }
-      }
-
-      return protobuf_map_to_bytes_ --message=resp_msg
-    else:
-      return #[]
-
   handshake data/ByteArray -> ByteArray:
-    resp := #[]
+    resp_msg := null
 
-    r := protobuf.Reader data
-    r.read_message:
-      r.read_field SESSION_VER:
-        r.read_primitive protobuf.PROTOBUF_TYPE_INT32
-      r.read_field SESSION_2_MSG:
-        return process_msg r
+    session := SessionData.deserialize (protobuf.Reader data)
+    if session.sec_ver != version:
+      throw "Session version does not match"
 
-    return resp
+    ses2 := session.proto_sec2
+    if ses2.msg == Sec2MsgType_S2Session_Command0:
+      user_name_ = ses2.payload_sc0.client_username
+      session_key_ = srp_.get_session_key ses2.payload_sc0.client_pubkey
+
+      resp_msg = SessionData
+          --sec_ver=version
+          --proto_sec2=Sec2Payload
+              --msg=Sec2MsgType_S2Session_Response0
+              --payload_sr0=S2SessionResp0
+                  --status=Status_Success
+                  --device_pubkey=srp_.gen_service_public_key
+                  --device_salt=salt_
+    else if ses2.msg == Sec2MsgType_S2Session_Command1:
+      device_proof := srp_.exchange_proofs user_name_ ses2.payload_sc1.client_proof
+
+      resp_msg = SessionData
+          --sec_ver=version
+          --proto_sec2=Sec2Payload
+              --msg=Sec2MsgType_S2Session_Response1
+              --payload_sr1=S2SessionResp1
+                  --status=Status_Success
+                  --device_proof=device_proof
+                  --device_nonce=aes_gcm_iv_
+    else:
+      throw "Session 2 message is not supported"
+
+    return protobuf_message_to_bytes_ resp_msg
 
   encrypt data/ByteArray -> ByteArray:
     /**
@@ -287,7 +228,7 @@ class Security2_ implements Security:
     return (AesGcm.decryptor session_key_[..32] aes_gcm_iv_).decrypt data
   
   version -> int:
-    return 2
+    return SecSchemeVersion_SecScheme2
 
 interface Process_:
   run data/ByteArray -> ByteArray
@@ -317,244 +258,111 @@ class SessionProcess_ implements Process_:
     return security_.handshake data
 
 class ScanProcess_ implements Process_:
-  static MSG ::= 1 /** type: enum */
-
-  /** Message enum number */
-  static MSG_REQ_START ::= 0
-  static MSG_RESP_START ::= 1
-  static MSG_REQ_STATUS ::= 2
-  static MSG_RESP_STATUS ::= 3
-  static MSG_REQ_RESULT ::= 4
-  static MSG_RESP_RESULT ::= 5
-
-  static REQ_START ::= 10 /** type: message */
-  static REQ_START_BLOCK ::= 1 /** type: bool */
-  static REQ_START_PERIOD ::= 4 /** type: uint32 */
-
-  static REQ_STATUS ::= 12 /** type: message */
-
-  static RESP_STATUS ::= 13 /** type: message */
-  static RESP_STATUS_FINISHED ::= 1 /** type: bool */
-  static RESP_STATUS_COUNT ::= 2 /** type: uint32 */
-
-  static REQ_RESULT ::= 14 /** type: message */
-  static REQ_RESULT_START ::= 1 /** type: uint32 */
-  static REQ_RESULT_COUNT ::= 2 /** type: uint32 */
-
-  static RESP_RESULT ::= 15 /** type: message */
-  static RESP_RESULT_ENTRIES ::= 1 /** type: Repeated message */
-  static RESP_RESULT_ENTRIES_SSID ::= 1 /** type: bytes */
-  static RESP_RESULT_ENTRIES_CHANNEL ::= 2 /** type: uint32 */
-  static RESP_RESULT_ENTRIES_RSSI ::= 3 /** type: int32_t */
-  static RESP_RESULT_ENTRIES_BSSID ::= 4 /** type: bytes */
-  static RESP_RESULT_ENTRIES_AUTH ::= 5 /** type: uint32 */
-
   static CHANNEL_NUM ::= 14
   static SCAN_AP_MAX ::= 16
 
-  ap_list/List := List
-  scan_done/bool := false
-  report_count/int := 4
-  scan_period/int := 120
-  msg_offset/int := 0
+  ap_list/List := []
 
   compare_ap_by_rssi a/wifi.AccessPoint b/wifi.AccessPoint -> int:
     return -(a.rssi.compare_to b.rssi)
 
-  init_parameters -> none:
-    ap_list = List
-    scan_done = false
-    report_count = 4
-    scan_period = 120
-    msg_offset = 0
-
-  scan_task:
-    channels := ByteArray CHANNEL_NUM: it + 1
-    ap_list = wifi.scan
-        channels
-        --period_per_channel_ms=scan_period
-    ap_list.sort --in_place:
-      | a b | compare_ap_by_rssi a b
-    size := min ap_list.size SCAN_AP_MAX
-    ap_list = ap_list[..size]
-    scan_done = true
-
-  scan_start r/protobuf.Reader -> ByteArray:
-    r.read_message:
-      r.read_field REQ_START_BLOCK:
-        /** block=true is not supported, because it blocks NimBLE system task. */
-        block := r.read_primitive protobuf.PROTOBUF_TYPE_INT32
-      r.read_field REQ_START_PERIOD:
-        scan_period = r.read_primitive protobuf.PROTOBUF_TYPE_INT32
-
-    init_parameters
-    scan_task
-
-    resp_msg := {
-        MSG: MSG_RESP_START
-    }
-    return protobuf_map_to_bytes_ --message=resp_msg
-  
-  scan_status -> ByteArray:
-    buffer := bytes.Buffer
-    w := protobuf.Writer buffer
-
-    resp_msg := {
-        MSG: MSG_RESP_STATUS,
-        RESP_STATUS: {:}
-    }
-
-    if not scan_done:
-      resp_msg[RESP_STATUS][RESP_STATUS_FINISHED] = 0
-    else:
-      resp_msg[RESP_STATUS][RESP_STATUS_FINISHED] = 1
-      resp_msg[RESP_STATUS][RESP_STATUS_COUNT] = ap_list.size
-
-    return protobuf_map_to_bytes_ --message=resp_msg
-  
-  scan_result r/protobuf.Reader -> ByteArray:
-    r.read_message:
-        r.read_field REQ_RESULT_COUNT:
-          report_count = r.read_primitive protobuf.PROTOBUF_TYPE_INT32
-
-    ap_info_msg := List
-    if msg_offset < ap_list.size:
-      ap_num := min (ap_list.size - msg_offset) report_count
-      ap_num.repeat:
-        ap ::= ap_list[msg_offset + it]
-        ap_info := {
-          RESP_RESULT_ENTRIES_SSID: ap.ssid,
-          RESP_RESULT_ENTRIES_CHANNEL: ap.channel,
-          RESP_RESULT_ENTRIES_RSSI: ap.rssi,
-          RESP_RESULT_ENTRIES_BSSID: ap.bssid,
-          RESP_RESULT_ENTRIES_AUTH: ap.authmode,
-        }
-        ap_info_msg.add ap_info
-
-      msg_offset += ap_num
-
-    resp_msg := {
-      MSG: MSG_RESP_RESULT,
-      RESP_RESULT: {
-        RESP_RESULT_ENTRIES: ap_info_msg
-      }
-    }
-    return protobuf_map_to_bytes_ --message=resp_msg
-
   run data/ByteArray -> ByteArray:
-    resp := #[]
+    resp_msg := null
     
-    r := protobuf.Reader data
-    r.read_message:
-      r.read_field MSG:
-        msgid := r.read_primitive protobuf.PROTOBUF_TYPE_INT32
-        if msgid == 2:
-          resp = scan_status
-      r.read_field REQ_START:
-        resp = scan_start r
-      r.read_field REQ_STATUS:
-        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-        resp = scan_status
-      r.read_field REQ_RESULT:
-        resp = scan_result r
+    scan := WiFiScanPayload.deserialize (protobuf.Reader data)
+    if scan.msg == WiFiScanMsgType_TypeCmdScanStart:
+      scan_start := scan.payload_cmd_scan_start
 
-    return resp
+      channels := ByteArray CHANNEL_NUM: it + 1
+      ap_list = wifi.scan
+          channels
+          --period_per_channel_ms=scan_start.period_ms
+      ap_list.sort --in_place:
+        | a b | compare_ap_by_rssi a b
+      size := min ap_list.size SCAN_AP_MAX
+      ap_list = ap_list[..size]
+
+      resp_msg = WiFiScanPayload
+          --msg=WiFiScanMsgType_TypeRespScanStart
+          --status=Status_Success
+          --payload_resp_scan_start=RespScanStart
+    else if scan.msg == WiFiScanMsgType_TypeCmdScanStatus:
+      resp_msg = WiFiScanPayload
+          --msg=WiFiScanMsgType_TypeRespScanStart
+          --status=Status_Success
+          --payload_resp_scan_status=RespScanStatus
+              --scan_finished=(ap_list.size > 0)
+              --result_count=ap_list.size
+    else if scan.msg == WiFiScanMsgType_TypeCmdScanResult:
+      arg := scan.payload_cmd_scan_result
+      scan_ap := ap_list[arg.start_index..arg.start_index+arg.count]
+
+      ap_entries := []
+      scan_ap.do: |ap/wifi.AccessPoint|
+        ap_entries.add 
+            WiFiScanResult
+              --ssid=ap.ssid.to_byte_array
+              --channel=ap.channel
+              --rssi=ap.rssi
+              --bssid=ap.bssid
+              --auth=ap.authmode
+ 
+      resp_msg = WiFiScanPayload
+          --msg=WiFiScanMsgType_TypeRespScanResult
+          --status=Status_Success
+          --payload_resp_scan_result=RespScanResult
+              --entries=ap_entries
+    else:
+      throw "Scan message is not supported"
+
+    return protobuf_message_to_bytes_ resp_msg
 
 class ConfigProcess_ implements Process_:
-  static MSG ::= 1 /** type: enum */
-
-  /** Message enum number */
-  static MSG_REQ_STATUS ::= 0
-  static MSG_RESP_STATUS ::= 1
-  static MSG_SET_CONFIG ::= 2
-  static MSG_RESP_CONFIG ::= 3
-  static MSG_SET_APPLY ::= 4
-  static MSG_RESP_APPY ::= 5
-
-  static REQ_STATUS ::= 10 /** type: message */
-
-  static RESP_STATUS ::= 11 /** type: message */
-  static RESP_STATUS_CONNECTED ::= 11 /** type: message */
-  static RESP_STATUS_CONNECTED_IPV4_ADDR ::= 1 /** type: string */
-  static RESP_STATUS_CONNECTED_AUTH_MODE ::= 2 /** type: uint32 */
-  static RESP_STATUS_CONNECTED_SSID ::= 3 /** type: bytes */
-  static RESP_STATUS_CONNECTED_BSSID ::= 4 /** type: bytes */
-  static RESP_STATUS_CONNECTED_CHANNEL ::= 5 /** type: uint32 */
-
-  static SET_CONFIG ::= 12 /** type: message */
-  static SET_CONFIG_SSID ::= 1 /** type: bytes */
-  static SET_CONFIG_PASSWORD ::= 2 /** type: bytes */
-
-  static REQ_APPLY ::= 14 /** type: message */
-
   ssid/string := ""
   password/string := ""
   network := null
-
-  recv_request_status/bool := false
-
-  is_done -> bool:
-    return recv_request_status
-
-  set_config r/protobuf.Reader -> ByteArray:
-    r.read_message:
-      r.read_field SET_CONFIG_SSID:
-        ssid = r.read_primitive protobuf.PROTOBUF_TYPE_STRING
-      r.read_field SET_CONFIG_PASSWORD:
-        password = r.read_primitive protobuf.PROTOBUF_TYPE_STRING
-    
-    resp_msg := {
-      MSG: MSG_RESP_CONFIG
-    }
-    return protobuf_map_to_bytes_ --message=resp_msg
-
-  set_apply -> ByteArray:
-    network = wifi.open
-        --ssid=ssid
-        --password=password
-
-    resp_msg := {
-        MSG: MSG_RESP_APPY
-    }
-    return protobuf_map_to_bytes_ --message=resp_msg 
-
-  req_status -> ByteArray:
-    ap ::= network.access_point
-
-    resp_msg := {
-      MSG: MSG_RESP_STATUS,
-      RESP_STATUS: {
-        RESP_STATUS_CONNECTED: {
-          RESP_STATUS_CONNECTED_IPV4_ADDR: "$(network.address)",
-          RESP_STATUS_CONNECTED_AUTH_MODE: ap.authmode,
-          RESP_STATUS_CONNECTED_SSID: ap.ssid,
-          RESP_STATUS_CONNECTED_BSSID: ap.bssid,
-          RESP_STATUS_CONNECTED_CHANNEL: ap.channel,
-        }
-      }
-    }
-    return protobuf_map_to_bytes_ --message=resp_msg  
+  is_done/bool := false
 
   run data/ByteArray -> ByteArray:
-    resp := #[]
+    resp_msg := null
 
-    r := protobuf.Reader data
-    r.read_message:
-      r.read_field MSG:
-        msgid := r.read_primitive protobuf.PROTOBUF_TYPE_INT32
-        if msgid == MSG_SET_APPLY:
-          resp = set_apply
-      r.read_field SET_CONFIG:
-        resp = set_config r
-      r.read_field REQ_STATUS:
-        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-        resp = req_status
-        recv_request_status = true
-      r.read_field REQ_APPLY:
-        r.read_primitive protobuf.PROTOBUF_TYPE_BYTES
-        resp = set_apply
+    wifi_config := WiFiConfigPayload.deserialize (protobuf.Reader data)
+    if wifi_config.msg == WiFiConfigMsgType_TypeCmdSetConfig:
+      arg := wifi_config.payload_cmd_set_config
+      ssid = arg.ssid.to_string
+      password = arg.passphrase.to_string
 
-    return resp
+      resp_msg = WiFiConfigPayload
+          --msg=WiFiConfigMsgType_TypeRespSetConfig
+          --payload_resp_set_config=RespSetConfig
+              --status=Status_Success
+    else if wifi_config.msg == WiFiConfigMsgType_TypeCmdApplyConfig:
+      network = wifi.open
+          --ssid=ssid
+          --password=password
+
+      resp_msg = WiFiConfigPayload
+          --msg=WiFiConfigMsgType_TypeRespApplyConfig
+          --payload_resp_apply_config=RespApplyConfig
+              --status=Status_Success
+    else if wifi_config.msg == WiFiConfigMsgType_TypeCmdGetStatus:
+      ap/wifi.AccessPoint ::= network.access_point
+
+      resp_msg = WiFiConfigPayload
+          --msg=WiFiConfigMsgType_TypeRespGetStatus
+          --payload_resp_get_status=RespGetStatus
+              --status=Status_Success
+              --state_connected=WifiConnectedState
+                  --ip4_addr="$(network.address)"
+                  --auth_mode=ap.authmode
+                  --ssid=ap.ssid.to_byte_array
+                  --bssid=ap.bssid
+                  --channel=ap.channel
+      is_done = true
+    else:
+      throw "WiFi config message is not supported"
+
+    return protobuf_message_to_bytes_ resp_msg
 
 class Provision:
   service_/BLEService_ := ?
@@ -643,34 +451,10 @@ class Provision:
 
     if not latch_.has_value: latch_.set false
 
-protobuf_map_to_bytes_ --message/Map /** field:value */ -> ByteArray:
+protobuf_message_to_bytes_ message/protobuf.Message -> ByteArray:
   buffer := bytes.Buffer
   w := protobuf.Writer buffer
-
-  message.do: | key value |
-    if key is not int:
-      throw "WRONG_OBJECT_TYPE"
-    if value is int:
-      w.write_primitive protobuf.PROTOBUF_TYPE_INT32 value --as_field=key --oneof=true
-    else if value is string:
-      w.write_primitive protobuf.PROTOBUF_TYPE_STRING value --as_field=key
-    else if value is ByteArray:
-      w.write_primitive protobuf.PROTOBUF_TYPE_BYTES value --as_field=key
-    else if value is List:
-      id := key
-      value.do:
-        w.write_primitive
-            protobuf.PROTOBUF_TYPE_BYTES
-            protobuf_map_to_bytes_ --message=it
-            --as_field=id
-    else if value is Map:
-      w.write_primitive 
-          protobuf.PROTOBUF_TYPE_BYTES
-          protobuf_map_to_bytes_ --message=value
-          --as_field=key
-    else:
-      throw "WRONG_OBJECT_TYPE"
-
+  message.serialize w
   return buffer.bytes
 
 get_mac_address -> ByteArray:
