@@ -2,12 +2,12 @@
 // Use of this source code is governed by an MIT-style license that can be
 // found in the package's LICENSE file.
 
-import bytes
 import encoding.json
 import monitor
 import net.wifi
 import ble
 import crypto.aes show *
+import io
 import protobuf
 import .srp
 import .proto.session_pb
@@ -59,14 +59,14 @@ class BLECharacteristic_:
         PROPERTIES
         PERMISSIONS
         desc.to_byte_array
-  
+
     recv_task = task:: recv_task_run
 
   recv_task_run:
     characteristic.handle_read_request:
       mutex_.do:
         result
-  
+
   write data/ByteArray:
     result = data
 
@@ -76,7 +76,7 @@ class BLECharacteristic_:
   mutex_do [block]:
     mutex_.do:
       block.call
-  
+
   close:
     if recv_task:
       recv_task.cancel
@@ -124,7 +124,7 @@ class BLEService_:
                     ble.BLE_ADVERTISE_FLAGS_BREDR_UNSUPPORTED
         --interval=Duration --ms=160
         --connection_mode=ble.BLE_CONNECT_MODE_UNDIRECTIONAL
-  
+
   operator [] name/string -> BLECharacteristic_:
     return characteristics[name]
 
@@ -165,7 +165,7 @@ class Security0_ implements Security:
 
   decrypt data/ByteArray -> ByteArray:
     return data
-  
+
   version -> int:
     return SecSchemeVersion_SecScheme0
 
@@ -226,7 +226,7 @@ class Security2_ implements Security:
 
   decrypt data/ByteArray -> ByteArray:
     return (AesGcm.decryptor session_key_[..32] aes_gcm_iv_).decrypt data
-  
+
   version -> int:
     return SecSchemeVersion_SecScheme2
 
@@ -268,7 +268,7 @@ class ScanProcess_ implements Process_:
 
   run data/ByteArray -> ByteArray:
     resp_msg := null
-    
+
     scan := WiFiScanPayload.deserialize (protobuf.Reader data)
     if scan.msg == WiFiScanMsgType_TypeCmdScanStart:
       scan_start := scan.payload_cmd_scan_start
@@ -299,14 +299,14 @@ class ScanProcess_ implements Process_:
 
       ap_entries := []
       scan_ap.do: |ap/wifi.AccessPoint|
-        ap_entries.add 
+        ap_entries.add
             WiFiScanResult
               --ssid=ap.ssid.to_byte_array
               --channel=ap.channel
               --rssi=ap.rssi
               --bssid=ap.bssid
               --auth=ap.authmode
- 
+
       resp_msg = WiFiScanPayload
           --msg=WiFiScanMsgType_TypeRespScanResult
           --status=Status_Success
@@ -375,7 +375,7 @@ class Provision:
 
   constructor.ble service_name/string security/Security:
     return Provision.ble_with_uuid SERVICE_UUID service_name security
-  
+
   constructor.ble_with_uuid service_uuid/ByteArray service_name/string .security_/Security:
     service_ = BLEService_ service_uuid service_name
 
@@ -446,13 +446,13 @@ class Provision:
     if config_task_:
       config_task_.cancel
       config_task_ = null
-    
+
     service_.close
 
     if not latch_.has_value: latch_.set false
 
 protobuf_message_to_bytes_ message/protobuf.Message -> ByteArray:
-  buffer := bytes.Buffer
+  buffer := io.Buffer
   w := protobuf.Writer buffer
   message.serialize w
   return buffer.bytes
