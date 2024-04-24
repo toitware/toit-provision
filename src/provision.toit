@@ -10,16 +10,16 @@ import crypto.aes show *
 import io
 import protobuf
 import .srp
-import .proto.session_pb
-import .proto.sec0_pb
-import .proto.sec2_pb
-import .proto.constants_pb
-import .proto.wifi_scan_pb
-import .proto.wifi_config_pb
-import .proto.wifi_constants_pb
+import .proto.session-pb
+import .proto.sec0-pb
+import .proto.sec2-pb
+import .proto.constants-pb
+import .proto.wifi-scan-pb
+import .proto.wifi-config-pb
+import .proto.wifi-constants-pb
 
 /** This UUID is used in PC and Phone APP by default. */
-SERVICE_UUID ::= #[0x02, 0x1a, 0x90, 0x04, 0x03, 0x82, 0x4a, 0xea,
+SERVICE-UUID ::= #[0x02, 0x1a, 0x90, 0x04, 0x03, 0x82, 0x4a, 0xea,
                    0xbf, 0xf4, 0x6b, 0x3f, 0x1c, 0x5a, 0xdf, 0xb4]
 
 /** This security mode 0 doesn't encrypt/decrypt. */
@@ -31,39 +31,39 @@ security2 --salt/ByteArray --verifier/ByteArray -> Security:
 
 class BLECharacteristic_:
   characteristic/ble.LocalCharacteristic
-  is_encrypted/bool
+  is-encrypted/bool
   desc/string
-  recv_task/Task? := null
+  recv-task/Task? := null
   result/ByteArray := #[]
   mutex_ := monitor.Mutex
 
-  static UUID_BASE ::= 0xff
-  static READ_TIMEOUT_MS ::= 10 * 1000
-  static PROPERTIES ::= ble.CHARACTERISTIC_PROPERTY_READ | ble.CHARACTERISTIC_PROPERTY_WRITE
-  static PERMISSIONS ::= ble.CHARACTERISTIC_PERMISSION_READ | ble.CHARACTERISTIC_PERMISSION_WRITE
-  static DESC_UUID ::= ble.BleUuid #[0x00, 0x00, 0x29, 0x01, 0x00, 0x00, 0x10, 0x00,
+  static UUID-BASE ::= 0xff
+  static READ-TIMEOUT-MS ::= 10 * 1000
+  static PROPERTIES ::= ble.CHARACTERISTIC-PROPERTY-READ | ble.CHARACTERISTIC-PROPERTY-WRITE
+  static PERMISSIONS ::= ble.CHARACTERISTIC-PERMISSION-READ | ble.CHARACTERISTIC-PERMISSION-WRITE
+  static DESC-UUID ::= ble.BleUuid #[0x00, 0x00, 0x29, 0x01, 0x00, 0x00, 0x10, 0x00,
                                      0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb]
 
-  constructor service/ble.LocalService service_uuid/ByteArray id/int .desc/string .is_encrypted/bool:
-    uuid := service_uuid.copy
-    uuid[2] = UUID_BASE
+  constructor service/ble.LocalService service-uuid/ByteArray id/int .desc/string .is-encrypted/bool:
+    uuid := service-uuid.copy
+    uuid[2] = UUID-BASE
     uuid[3] = id
 
-    characteristic = service.add_characteristic
+    characteristic = service.add-characteristic
         ble.BleUuid uuid
         --properties=PROPERTIES
         --permissions=PERMISSIONS
-        --read_timeout_ms=READ_TIMEOUT_MS
-    characteristic.add_descriptor
-        DESC_UUID
+        --read-timeout-ms=READ-TIMEOUT-MS
+    characteristic.add-descriptor
+        DESC-UUID
         PROPERTIES
         PERMISSIONS
-        desc.to_byte_array
+        desc.to-byte-array
 
-    recv_task = task:: recv_task_run
+    recv-task = task:: recv-task-run
 
-  recv_task_run:
-    characteristic.handle_read_request:
+  recv-task-run:
+    characteristic.handle-read-request:
       mutex_.do:
         result
 
@@ -73,14 +73,14 @@ class BLECharacteristic_:
   read -> ByteArray:
     return characteristic.read
 
-  mutex_do [block]:
+  mutex-do [block]:
     mutex_.do:
       block.call
 
   close:
-    if recv_task:
-      recv_task.cancel
-      recv_task = null
+    if recv-task:
+      recv-task.cancel
+      recv-task = null
 
 class BLEService_:
   uuid/ByteArray
@@ -102,7 +102,7 @@ class BLEService_:
   constructor .uuid/ByteArray .name/string:
     adapter = ble.Adapter
     peripheral = adapter.peripheral
-    service = peripheral.add_service
+    service = peripheral.add-service
         ble.BleUuid uuid
 
     characteristics = Map
@@ -118,14 +118,14 @@ class BLEService_:
     peripheral.deploy
 
   start:
-    peripheral.start_advertise
+    peripheral.start-advertise
         ble.AdvertisementData
             --name=name
-            --service_classes=[ble.BleUuid uuid]
-            --flags=ble.BLE_ADVERTISE_FLAGS_GENERAL_DISCOVERY |
-                    ble.BLE_ADVERTISE_FLAGS_BREDR_UNSUPPORTED
+            --service-classes=[ble.BleUuid uuid]
+            --flags=ble.BLE-ADVERTISE-FLAGS-GENERAL-DISCOVERY |
+                    ble.BLE-ADVERTISE-FLAGS-BREDR-UNSUPPORTED
         --interval=Duration --ms=160
-        --connection_mode=ble.BLE_CONNECT_MODE_UNDIRECTIONAL
+        --connection-mode=ble.BLE-CONNECT-MODE-UNDIRECTIONAL
 
   operator [] name/string -> BLECharacteristic_:
     return characteristics[name]
@@ -154,24 +154,24 @@ interface Security:
 class Security0_ implements Security:
 
   handshake data/ByteArray -> ByteArray:
-    resp_msg := null
+    resp-msg := null
 
     session := SessionData.deserialize (protobuf.Reader data)
-    if session.sec_ver != version:
+    if session.sec-ver != version:
       throw "Session version does not match"
 
-    ses0 := session.proto_sec0
-    if ses0.msg == Sec0MsgType_S0_Session_Command:
-      resp_msg = SessionData
-          --sec_ver=version
-          --proto_sec0=Sec0Payload
-              --msg=Sec0MsgType_S0_Session_Response
-              --payload_sr=S0SessionResp
-                  --status=Status_Success
+    ses0 := session.proto-sec0
+    if ses0.msg == Sec0MsgType-S0-Session-Command:
+      resp-msg = SessionData
+          --sec-ver=version
+          --proto-sec0=Sec0Payload
+              --msg=Sec0MsgType-S0-Session-Response
+              --payload-sr=S0SessionResp
+                  --status=Status-Success
     else:
       throw "Session 0 message is not supported"
 
-    return protobuf_message_to_bytes_ resp_msg
+    return protobuf-message-to-bytes_ resp-msg
 
   encrypt data/ByteArray -> ByteArray:
     return data
@@ -180,87 +180,87 @@ class Security0_ implements Security:
     return data
 
   version -> int:
-    return SecSchemeVersion_SecScheme0
+    return SecSchemeVersion-SecScheme0
 
 class Security2_ implements Security:
   salt_/ByteArray
 
   srp_/SRP
-  session_key_/ByteArray := #[]
-  user_name_/ByteArray := #[]
+  session-key_/ByteArray := #[]
+  user-name_/ByteArray := #[]
   // TODO(florian): use a cryptographic random function.
-  aes_gcm_iv_/ByteArray := ByteArray 12: random
+  aes-gcm-iv_/ByteArray := ByteArray 12: random
 
   constructor .salt_/ByteArray verifier/ByteArray:
     srp_ = SRP salt_ verifier
 
   handshake data/ByteArray -> ByteArray:
-    resp_msg := null
+    resp-msg := null
 
     session := SessionData.deserialize (protobuf.Reader data)
-    if session.sec_ver != version:
+    if session.sec-ver != version:
       throw "Session version does not match"
 
-    ses2 := session.proto_sec2
-    if ses2.msg == Sec2MsgType_S2Session_Command0:
-      user_name_ = ses2.payload_sc0.client_username
-      session_key_ = srp_.get_session_key ses2.payload_sc0.client_pubkey
+    ses2 := session.proto-sec2
+    if ses2.msg == Sec2MsgType-S2Session-Command0:
+      user-name_ = ses2.payload-sc0.client-username
+      session-key_ = srp_.get-session-key ses2.payload-sc0.client-pubkey
 
-      resp_msg = SessionData
-          --sec_ver=version
-          --proto_sec2=Sec2Payload
-              --msg=Sec2MsgType_S2Session_Response0
-              --payload_sr0=S2SessionResp0
-                  --status=Status_Success
-                  --device_pubkey=srp_.gen_service_public_key
-                  --device_salt=salt_
-    else if ses2.msg == Sec2MsgType_S2Session_Command1:
-      device_proof := srp_.exchange_proofs user_name_ ses2.payload_sc1.client_proof
+      resp-msg = SessionData
+          --sec-ver=version
+          --proto-sec2=Sec2Payload
+              --msg=Sec2MsgType-S2Session-Response0
+              --payload-sr0=S2SessionResp0
+                  --status=Status-Success
+                  --device-pubkey=srp_.gen-service-public-key
+                  --device-salt=salt_
+    else if ses2.msg == Sec2MsgType-S2Session-Command1:
+      device-proof := srp_.exchange-proofs user-name_ ses2.payload-sc1.client-proof
 
-      resp_msg = SessionData
-          --sec_ver=version
-          --proto_sec2=Sec2Payload
-              --msg=Sec2MsgType_S2Session_Response1
-              --payload_sr1=S2SessionResp1
-                  --status=Status_Success
-                  --device_proof=device_proof
-                  --device_nonce=aes_gcm_iv_
+      resp-msg = SessionData
+          --sec-ver=version
+          --proto-sec2=Sec2Payload
+              --msg=Sec2MsgType-S2Session-Response1
+              --payload-sr1=S2SessionResp1
+                  --status=Status-Success
+                  --device-proof=device-proof
+                  --device-nonce=aes-gcm-iv_
     else:
       throw "Session 2 message is not supported"
 
-    return protobuf_message_to_bytes_ resp_msg
+    return protobuf-message-to-bytes_ resp-msg
 
   encrypt data/ByteArray -> ByteArray:
     /**
     session_key_ is generated by SHA512, so its length is 512 bits(64 bytes),
     but AES-GCM's key length is 256 bits(32 bytes).
     */
-    return (AesGcm.encryptor session_key_[..32] aes_gcm_iv_).encrypt data
+    return (AesGcm.encryptor session-key_[..32] aes-gcm-iv_).encrypt data
 
   decrypt data/ByteArray -> ByteArray:
-    return (AesGcm.decryptor session_key_[..32] aes_gcm_iv_).decrypt data
+    return (AesGcm.decryptor session-key_[..32] aes-gcm-iv_).decrypt data
 
   version -> int:
-    return SecSchemeVersion_SecScheme2
+    return SecSchemeVersion-SecScheme2
 
 interface Process_:
   run data/ByteArray -> ByteArray
 
 class VerProcess_ implements Process_:
   static VERSION := "v1.1"
-  static BASE_CAPS := ["wifi_scan"]
+  static BASE-CAPS := ["wifi_scan"]
 
-  resp_msg/ByteArray
+  resp-msg/ByteArray
 
   constructor version/int:
-    caps := List BASE_CAPS.size: BASE_CAPS[it]
+    caps := List BASE-CAPS.size: BASE-CAPS[it]
     if version == 0:
       caps.add "no_sec"
-    ver_map := {"prov":{"ver":VERSION, "sec_ver":version, "cap":caps}}
-    resp_msg = json.encode ver_map
+    ver-map := {"prov":{"ver":VERSION, "sec_ver":version, "cap":caps}}
+    resp-msg = json.encode ver-map
 
   run data/ByteArray -> ByteArray:
-    return resp_msg
+    return resp-msg
 
 class SessionProcess_ implements Process_:
   security_/Security
@@ -271,173 +271,173 @@ class SessionProcess_ implements Process_:
     return security_.handshake data
 
 class ScanProcess_ implements Process_:
-  static CHANNEL_NUM ::= 14
-  static SCAN_AP_MAX ::= 16
+  static CHANNEL-NUM ::= 14
+  static SCAN-AP-MAX ::= 16
 
-  ap_list/List := []
+  ap-list/List := []
 
-  compare_ap_by_rssi a/wifi.AccessPoint b/wifi.AccessPoint -> int:
-    return -(a.rssi.compare_to b.rssi)
+  compare-ap-by-rssi a/wifi.AccessPoint b/wifi.AccessPoint -> int:
+    return -(a.rssi.compare-to b.rssi)
 
   run data/ByteArray -> ByteArray:
-    resp_msg := null
+    resp-msg := null
 
     scan := WiFiScanPayload.deserialize (protobuf.Reader data)
-    if scan.msg == WiFiScanMsgType_TypeCmdScanStart:
-      scan_start := scan.payload_cmd_scan_start
+    if scan.msg == WiFiScanMsgType-TypeCmdScanStart:
+      scan-start := scan.payload-cmd-scan-start
 
-      channels := ByteArray CHANNEL_NUM: it + 1
-      ap_list = wifi.scan
+      channels := ByteArray CHANNEL-NUM: it + 1
+      ap-list = wifi.scan
           channels
-          --period_per_channel_ms=scan_start.period_ms
-      ap_list.sort --in_place:
-        | a b | compare_ap_by_rssi a b
-      size := min ap_list.size SCAN_AP_MAX
-      ap_list = ap_list[..size]
+          --period-per-channel-ms=scan-start.period-ms
+      ap-list.sort --in-place:
+        | a b | compare-ap-by-rssi a b
+      size := min ap-list.size SCAN-AP-MAX
+      ap-list = ap-list[..size]
 
-      resp_msg = WiFiScanPayload
-          --msg=WiFiScanMsgType_TypeRespScanStart
-          --status=Status_Success
-          --payload_resp_scan_start=RespScanStart
-    else if scan.msg == WiFiScanMsgType_TypeCmdScanStatus:
-      resp_msg = WiFiScanPayload
-          --msg=WiFiScanMsgType_TypeRespScanStart
-          --status=Status_Success
-          --payload_resp_scan_status=RespScanStatus
-              --scan_finished=(ap_list.size > 0)
-              --result_count=ap_list.size
-    else if scan.msg == WiFiScanMsgType_TypeCmdScanResult:
-      arg := scan.payload_cmd_scan_result
-      scan_ap := ap_list[arg.start_index..arg.start_index+arg.count]
+      resp-msg = WiFiScanPayload
+          --msg=WiFiScanMsgType-TypeRespScanStart
+          --status=Status-Success
+          --payload-resp-scan-start=RespScanStart
+    else if scan.msg == WiFiScanMsgType-TypeCmdScanStatus:
+      resp-msg = WiFiScanPayload
+          --msg=WiFiScanMsgType-TypeRespScanStart
+          --status=Status-Success
+          --payload-resp-scan-status=RespScanStatus
+              --scan-finished=(ap-list.size > 0)
+              --result-count=ap-list.size
+    else if scan.msg == WiFiScanMsgType-TypeCmdScanResult:
+      arg := scan.payload-cmd-scan-result
+      scan-ap := ap-list[arg.start-index..arg.start-index+arg.count]
 
-      ap_entries := []
-      scan_ap.do: |ap/wifi.AccessPoint|
-        ap_entries.add
+      ap-entries := []
+      scan-ap.do: |ap/wifi.AccessPoint|
+        ap-entries.add
             WiFiScanResult
-              --ssid=ap.ssid.to_byte_array
+              --ssid=ap.ssid.to-byte-array
               --channel=ap.channel
               --rssi=ap.rssi
               --bssid=ap.bssid
               --auth=ap.authmode
 
-      resp_msg = WiFiScanPayload
-          --msg=WiFiScanMsgType_TypeRespScanResult
-          --status=Status_Success
-          --payload_resp_scan_result=RespScanResult
-              --entries=ap_entries
+      resp-msg = WiFiScanPayload
+          --msg=WiFiScanMsgType-TypeRespScanResult
+          --status=Status-Success
+          --payload-resp-scan-result=RespScanResult
+              --entries=ap-entries
     else:
       throw "Scan message is not supported"
 
-    return protobuf_message_to_bytes_ resp_msg
+    return protobuf-message-to-bytes_ resp-msg
 
 class ConfigProcess_ implements Process_:
   ssid/string := ""
   password/string := ""
   network := null
-  is_done/bool := false
+  is-done/bool := false
 
   run data/ByteArray -> ByteArray:
-    resp_msg := null
+    resp-msg := null
 
-    wifi_config := WiFiConfigPayload.deserialize (protobuf.Reader data)
-    if wifi_config.msg == WiFiConfigMsgType_TypeCmdSetConfig:
-      arg := wifi_config.payload_cmd_set_config
-      ssid = arg.ssid.to_string
-      password = arg.passphrase.to_string
+    wifi-config := WiFiConfigPayload.deserialize (protobuf.Reader data)
+    if wifi-config.msg == WiFiConfigMsgType-TypeCmdSetConfig:
+      arg := wifi-config.payload-cmd-set-config
+      ssid = arg.ssid.to-string
+      password = arg.passphrase.to-string
 
-      resp_msg = WiFiConfigPayload
-          --msg=WiFiConfigMsgType_TypeRespSetConfig
-          --payload_resp_set_config=RespSetConfig
-              --status=Status_Success
-    else if wifi_config.msg == WiFiConfigMsgType_TypeCmdApplyConfig:
+      resp-msg = WiFiConfigPayload
+          --msg=WiFiConfigMsgType-TypeRespSetConfig
+          --payload-resp-set-config=RespSetConfig
+              --status=Status-Success
+    else if wifi-config.msg == WiFiConfigMsgType-TypeCmdApplyConfig:
       network = wifi.open
           --ssid=ssid
           --password=password
 
-      resp_msg = WiFiConfigPayload
-          --msg=WiFiConfigMsgType_TypeRespApplyConfig
-          --payload_resp_apply_config=RespApplyConfig
-              --status=Status_Success
-    else if wifi_config.msg == WiFiConfigMsgType_TypeCmdGetStatus:
-      ap/wifi.AccessPoint ::= network.access_point
+      resp-msg = WiFiConfigPayload
+          --msg=WiFiConfigMsgType-TypeRespApplyConfig
+          --payload-resp-apply-config=RespApplyConfig
+              --status=Status-Success
+    else if wifi-config.msg == WiFiConfigMsgType-TypeCmdGetStatus:
+      ap/wifi.AccessPoint ::= network.access-point
 
-      resp_msg = WiFiConfigPayload
-          --msg=WiFiConfigMsgType_TypeRespGetStatus
-          --payload_resp_get_status=RespGetStatus
-              --status=Status_Success
-              --state_connected=WifiConnectedState
-                  --ip4_addr="$(network.address)"
-                  --auth_mode=ap.authmode
-                  --ssid=ap.ssid.to_byte_array
+      resp-msg = WiFiConfigPayload
+          --msg=WiFiConfigMsgType-TypeRespGetStatus
+          --payload-resp-get-status=RespGetStatus
+              --status=Status-Success
+              --state-connected=WifiConnectedState
+                  --ip4-addr="$(network.address)"
+                  --auth-mode=ap.authmode
+                  --ssid=ap.ssid.to-byte-array
                   --bssid=ap.bssid
                   --channel=ap.channel
-      is_done = true
+      is-done = true
     else:
       throw "WiFi config message is not supported"
 
-    return protobuf_message_to_bytes_ resp_msg
+    return protobuf-message-to-bytes_ resp-msg
 
 class Provision:
   service_/BLEService_ := ?
   security_/Security := ?
-  version_task_/Task? := null
-  config_task_/Task? := null
-  session_task_/Task? := null
-  scan_task_/Task? := null
+  version-task_/Task? := null
+  config-task_/Task? := null
+  session-task_/Task? := null
+  scan-task_/Task? := null
   latch_ := monitor.Latch
 
-  constructor.ble service_name/string security/Security:
-    return Provision.ble_with_uuid SERVICE_UUID service_name security
+  constructor.ble service-name/string security/Security:
+    return Provision.ble-with-uuid SERVICE-UUID service-name security
 
-  constructor.ble_with_uuid service_uuid/ByteArray service_name/string .security_/Security:
-    service_ = BLEService_ service_uuid service_name
+  constructor.ble-with-uuid service-uuid/ByteArray service-name/string .security_/Security:
+    service_ = BLEService_ service-uuid service-name
 
   start -> none:
-    if version_task_: throw "Already running"
-    if latch_.has_value: throw "CLOSED"
-    version_task_ = task:: ch_version_task_
-    config_task_ = task:: ch_config_task_
-    session_task_ = task:: ch_session_task_
-    scan_task_ = task:: ch_scan_task_
+    if version-task_: throw "Already running"
+    if latch_.has-value: throw "CLOSED"
+    version-task_ = task:: ch-version-task_
+    config-task_ = task:: ch-config-task_
+    session-task_ = task:: ch-session-task_
+    scan-task_ = task:: ch-scan-task_
 
     service_.start
 
   wait -> bool:
     return latch_.get
 
-  static common_process_ security/Security process/Process_ characteristic/BLECharacteristic_:
-    encrypt_data := characteristic.read
-    characteristic.mutex_do:
-      encrypted := characteristic.is_encrypted
-      data := encrypted ? security.decrypt encrypt_data : encrypt_data
+  static common-process_ security/Security process/Process_ characteristic/BLECharacteristic_:
+    encrypt-data := characteristic.read
+    characteristic.mutex-do:
+      encrypted := characteristic.is-encrypted
+      data := encrypted ? security.decrypt encrypt-data : encrypt-data
       resp := process.run data
       if resp.size > 0:
         data = encrypted ? security.encrypt resp : resp
         characteristic.write data
 
-  ch_version_task_:
+  ch-version-task_:
     characteristic := service_["proto-ver"]
-    ver_process := VerProcess_ security_.version
-    common_process_ security_ ver_process characteristic
+    ver-process := VerProcess_ security_.version
+    common-process_ security_ ver-process characteristic
 
-  ch_session_task_:
+  ch-session-task_:
     characteristic := service_["prov-session"]
-    session_process := SessionProcess_ security_
+    session-process := SessionProcess_ security_
     while true:
-      common_process_ security_ session_process characteristic
+      common-process_ security_ session-process characteristic
 
-  ch_scan_task_:
+  ch-scan-task_:
     characteristic := service_["prov-scan"]
-    scan_process := ScanProcess_
+    scan-process := ScanProcess_
     while true:
-      common_process_ security_ scan_process characteristic
+      common-process_ security_ scan-process characteristic
 
-  ch_config_task_:
+  ch-config-task_:
     characteristic := service_["prov-config"]
-    config_process := ConfigProcess_
+    config-process := ConfigProcess_
     while true:
-      common_process_ security_ config_process characteristic
-      if config_process.is_done:
+      common-process_ security_ config-process characteristic
+      if config-process.is-done:
         /**
         sleep for 1 seconds to wait for host tool or phone APP checking state and disconnecting
         */
@@ -447,29 +447,29 @@ class Provision:
   Closes the provisioning and shuts down the service.
   */
   close:
-    if version_task_:
-      version_task_.cancel
-      version_task_ = null
-    if session_task_:
-      session_task_.cancel
-      session_task_ = null
-    if scan_task_:
-      scan_task_.cancel
-      scan_task_ = null
-    if config_task_:
-      config_task_.cancel
-      config_task_ = null
+    if version-task_:
+      version-task_.cancel
+      version-task_ = null
+    if session-task_:
+      session-task_.cancel
+      session-task_ = null
+    if scan-task_:
+      scan-task_.cancel
+      scan-task_ = null
+    if config-task_:
+      config-task_.cancel
+      config-task_ = null
 
     service_.close
 
-    if not latch_.has_value: latch_.set false
+    if not latch_.has-value: latch_.set false
 
-protobuf_message_to_bytes_ message/protobuf.Message -> ByteArray:
+protobuf-message-to-bytes_ message/protobuf.Message -> ByteArray:
   buffer := io.Buffer
   w := protobuf.Writer buffer
   message.serialize w
   return buffer.bytes
 
-get_mac_address -> ByteArray:
+get-mac-address -> ByteArray:
   // TODO: don't use a primitive.
-  #primitive.esp32.get_mac_address
+  #primitive.esp32.get-mac-address

@@ -3,16 +3,16 @@
 
 import protobuf as _protobuf
 import core as _core
-import .constants_pb as _constants
-import .wifi_constants_pb as _wifi_constants
+import .constants-pb as _constants
+import .wifi-constants-pb as _wifi-constants
 
 // ENUM START: WiFiConfigMsgType
-WiFiConfigMsgType_TypeCmdGetStatus/int/*enum<WiFiConfigMsgType>*/ ::= 0
-WiFiConfigMsgType_TypeRespGetStatus/int/*enum<WiFiConfigMsgType>*/ ::= 1
-WiFiConfigMsgType_TypeCmdSetConfig/int/*enum<WiFiConfigMsgType>*/ ::= 2
-WiFiConfigMsgType_TypeRespSetConfig/int/*enum<WiFiConfigMsgType>*/ ::= 3
-WiFiConfigMsgType_TypeCmdApplyConfig/int/*enum<WiFiConfigMsgType>*/ ::= 4
-WiFiConfigMsgType_TypeRespApplyConfig/int/*enum<WiFiConfigMsgType>*/ ::= 5
+WiFiConfigMsgType-TypeCmdGetStatus/int/*enum<WiFiConfigMsgType>*/ ::= 0
+WiFiConfigMsgType-TypeRespGetStatus/int/*enum<WiFiConfigMsgType>*/ ::= 1
+WiFiConfigMsgType-TypeCmdSetConfig/int/*enum<WiFiConfigMsgType>*/ ::= 2
+WiFiConfigMsgType-TypeRespSetConfig/int/*enum<WiFiConfigMsgType>*/ ::= 3
+WiFiConfigMsgType-TypeCmdApplyConfig/int/*enum<WiFiConfigMsgType>*/ ::= 4
+WiFiConfigMsgType-TypeRespApplyConfig/int/*enum<WiFiConfigMsgType>*/ ::= 5
 // ENUM END: .WiFiConfigMsgType
 
 // MESSAGE START: .CmdGetStatus
@@ -21,16 +21,16 @@ class CmdGetStatus extends _protobuf.Message:
   constructor:
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
+    r.read-message:
       1
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
     1
-  num_fields_set -> int:
+  num-fields-set -> int:
     return 0
 
-  protobuf_size -> int:
+  protobuf-size -> int:
     return 0
 
 // MESSAGE END: .CmdGetStatus
@@ -39,80 +39,80 @@ class CmdGetStatus extends _protobuf.Message:
 class RespGetStatus extends _protobuf.Message:
   // ONEOF START: .RespGetStatus.state
   state_ := null
-  state_oneof_case_/int? := null
+  state-oneof-case_/int? := null
 
-  state_oneof_clear -> none:
+  state-oneof-clear -> none:
     state_ = null
-    state_oneof_case_ = null
+    state-oneof-case_ = null
 
-  static STATE_FAIL_REASON/int ::= 10
-  static STATE_CONNECTED/int ::= 11
+  static STATE-FAIL-REASON/int ::= 10
+  static STATE-CONNECTED/int ::= 11
 
-  state_oneof_case -> int?:
-    return state_oneof_case_
+  state-oneof-case -> int?:
+    return state-oneof-case_
 
-  state_fail_reason -> int/*enum<_wifi_constants.WifiConnectFailedReason>*/:
+  state-fail-reason -> int/*enum<_wifi_constants.WifiConnectFailedReason>*/:
     return state_
 
-  state_fail_reason= state/int/*enum<_wifi_constants.WifiConnectFailedReason>*/ -> none:
+  state-fail-reason= state/int/*enum<_wifi_constants.WifiConnectFailedReason>*/ -> none:
     state_ = state
-    state_oneof_case_ = STATE_FAIL_REASON
+    state-oneof-case_ = STATE-FAIL-REASON
 
-  state_connected -> _wifi_constants.WifiConnectedState:
+  state-connected -> _wifi-constants.WifiConnectedState:
     return state_
 
-  state_connected= state/_wifi_constants.WifiConnectedState -> none:
+  state-connected= state/_wifi-constants.WifiConnectedState -> none:
     state_ = state
-    state_oneof_case_ = STATE_CONNECTED
+    state-oneof-case_ = STATE-CONNECTED
 
   // ONEOF END: .RespGetStatus.state
   status/int/*enum<_constants.Status>*/ := 0
-  sta_state/int/*enum<_wifi_constants.WifiStationState>*/ := 0
+  sta-state/int/*enum<_wifi_constants.WifiStationState>*/ := 0
 
   constructor
       --status/int?/*enum<_constants.Status>?*/=null
-      --sta_state/int?/*enum<_wifi_constants.WifiStationState>?*/=null
-      --state_fail_reason/int?/*enum<_wifi_constants.WifiConnectFailedReason>?*/=null
-      --state_connected/_wifi_constants.WifiConnectedState?=null:
+      --sta-state/int?/*enum<_wifi_constants.WifiStationState>?*/=null
+      --state-fail-reason/int?/*enum<_wifi_constants.WifiConnectFailedReason>?*/=null
+      --state-connected/_wifi-constants.WifiConnectedState?=null:
     if status != null:
       this.status = status
-    if sta_state != null:
-      this.sta_state = sta_state
-    if state_fail_reason != null:
-      this.state_fail_reason = state_fail_reason
-    if state_connected != null:
-      this.state_connected = state_connected
+    if sta-state != null:
+      this.sta-state = sta-state
+    if state-fail-reason != null:
+      this.state-fail-reason = state-fail-reason
+    if state-connected != null:
+      this.state-connected = state-connected
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        status = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 2:
-        sta_state = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 10:
-        state_fail_reason = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 11:
-        state_connected = _wifi_constants.WifiConnectedState.deserialize r
+    r.read-message:
+      r.read-field 1:
+        status = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 2:
+        sta-state = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 10:
+        state-fail-reason = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 11:
+        state-connected = _wifi-constants.WifiConnectedState.deserialize r
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM sta_state --as_field=2
-    if state_oneof_case_ == STATE_FAIL_REASON:
-      w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM state_ --as_field=STATE_FAIL_REASON --oneof
-    if state_oneof_case_ == STATE_CONNECTED:
-      state_.serialize w --as_field=STATE_CONNECTED --oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM sta-state --as-field=2
+    if state-oneof-case_ == STATE-FAIL-REASON:
+      w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM state_ --as-field=STATE-FAIL-REASON --oneof
+    if state-oneof-case_ == STATE-CONNECTED:
+      state_.serialize w --as-field=STATE-CONNECTED --oneof
 
-  num_fields_set -> int:
-    return (state_oneof_case_ == null ? 0 : 1)
+  num-fields-set -> int:
+    return (state-oneof-case_ == null ? 0 : 1)
       + (status == 0 ? 0 : 1)
-      + (sta_state == 0 ? 0 : 1)
+      + (sta-state == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM sta_state --as_field=2)
-      + (state_oneof_case_ == STATE_FAIL_REASON ? (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM state_fail_reason --as_field=10) : 0)
-      + (state_oneof_case_ == STATE_CONNECTED ? (_protobuf.size_embedded_message (state_connected.protobuf_size) --as_field=11) : 0)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM sta-state --as-field=2)
+      + (state-oneof-case_ == STATE-FAIL-REASON ? (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM state-fail-reason --as-field=10) : 0)
+      + (state-oneof-case_ == STATE-CONNECTED ? (_protobuf.size-embedded-message (state-connected.protobuf-size) --as-field=11) : 0)
 
 // MESSAGE END: .RespGetStatus
 
@@ -138,34 +138,34 @@ class CmdSetConfig extends _protobuf.Message:
       this.channel = channel
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        ssid = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 2:
-        passphrase = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 3:
-        bssid = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 4:
-        channel = r.read_primitive _protobuf.PROTOBUF_TYPE_INT32
+    r.read-message:
+      r.read-field 1:
+        ssid = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 2:
+        passphrase = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 3:
+        bssid = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 4:
+        channel = r.read-primitive _protobuf.PROTOBUF-TYPE-INT32
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES ssid --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES passphrase --as_field=2
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES bssid --as_field=3
-    w.write_primitive _protobuf.PROTOBUF_TYPE_INT32 channel --as_field=4
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES ssid --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES passphrase --as-field=2
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES bssid --as-field=3
+    w.write-primitive _protobuf.PROTOBUF-TYPE-INT32 channel --as-field=4
 
-  num_fields_set -> int:
-    return (ssid.is_empty ? 0 : 1)
-      + (passphrase.is_empty ? 0 : 1)
-      + (bssid.is_empty ? 0 : 1)
+  num-fields-set -> int:
+    return (ssid.is-empty ? 0 : 1)
+      + (passphrase.is-empty ? 0 : 1)
+      + (bssid.is-empty ? 0 : 1)
       + (channel == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES ssid --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES passphrase --as_field=2)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES bssid --as_field=3)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_INT32 channel --as_field=4)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES ssid --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES passphrase --as-field=2)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES bssid --as-field=3)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-INT32 channel --as-field=4)
 
 // MESSAGE END: .CmdSetConfig
 
@@ -179,19 +179,19 @@ class RespSetConfig extends _protobuf.Message:
       this.status = status
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        status = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
+    r.read-message:
+      r.read-field 1:
+        status = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1
 
-  num_fields_set -> int:
+  num-fields-set -> int:
     return (status == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1)
 
 // MESSAGE END: .RespSetConfig
 
@@ -201,16 +201,16 @@ class CmdApplyConfig extends _protobuf.Message:
   constructor:
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
+    r.read-message:
       1
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
     1
-  num_fields_set -> int:
+  num-fields-set -> int:
     return 0
 
-  protobuf_size -> int:
+  protobuf-size -> int:
     return 0
 
 // MESSAGE END: .CmdApplyConfig
@@ -225,19 +225,19 @@ class RespApplyConfig extends _protobuf.Message:
       this.status = status
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        status = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
+    r.read-message:
+      r.read-field 1:
+        status = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1
 
-  num_fields_set -> int:
+  num-fields-set -> int:
     return (status == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1)
 
 // MESSAGE END: .RespApplyConfig
 
@@ -245,135 +245,135 @@ class RespApplyConfig extends _protobuf.Message:
 class WiFiConfigPayload extends _protobuf.Message:
   // ONEOF START: .WiFiConfigPayload.payload
   payload_ := null
-  payload_oneof_case_/int? := null
+  payload-oneof-case_/int? := null
 
-  payload_oneof_clear -> none:
+  payload-oneof-clear -> none:
     payload_ = null
-    payload_oneof_case_ = null
+    payload-oneof-case_ = null
 
-  static PAYLOAD_CMD_GET_STATUS/int ::= 10
-  static PAYLOAD_RESP_GET_STATUS/int ::= 11
-  static PAYLOAD_CMD_SET_CONFIG/int ::= 12
-  static PAYLOAD_RESP_SET_CONFIG/int ::= 13
-  static PAYLOAD_CMD_APPLY_CONFIG/int ::= 14
-  static PAYLOAD_RESP_APPLY_CONFIG/int ::= 15
+  static PAYLOAD-CMD-GET-STATUS/int ::= 10
+  static PAYLOAD-RESP-GET-STATUS/int ::= 11
+  static PAYLOAD-CMD-SET-CONFIG/int ::= 12
+  static PAYLOAD-RESP-SET-CONFIG/int ::= 13
+  static PAYLOAD-CMD-APPLY-CONFIG/int ::= 14
+  static PAYLOAD-RESP-APPLY-CONFIG/int ::= 15
 
-  payload_oneof_case -> int?:
-    return payload_oneof_case_
+  payload-oneof-case -> int?:
+    return payload-oneof-case_
 
-  payload_cmd_get_status -> CmdGetStatus:
+  payload-cmd-get-status -> CmdGetStatus:
     return payload_
 
-  payload_cmd_get_status= payload/CmdGetStatus -> none:
+  payload-cmd-get-status= payload/CmdGetStatus -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_CMD_GET_STATUS
+    payload-oneof-case_ = PAYLOAD-CMD-GET-STATUS
 
-  payload_resp_get_status -> RespGetStatus:
+  payload-resp-get-status -> RespGetStatus:
     return payload_
 
-  payload_resp_get_status= payload/RespGetStatus -> none:
+  payload-resp-get-status= payload/RespGetStatus -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_RESP_GET_STATUS
+    payload-oneof-case_ = PAYLOAD-RESP-GET-STATUS
 
-  payload_cmd_set_config -> CmdSetConfig:
+  payload-cmd-set-config -> CmdSetConfig:
     return payload_
 
-  payload_cmd_set_config= payload/CmdSetConfig -> none:
+  payload-cmd-set-config= payload/CmdSetConfig -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_CMD_SET_CONFIG
+    payload-oneof-case_ = PAYLOAD-CMD-SET-CONFIG
 
-  payload_resp_set_config -> RespSetConfig:
+  payload-resp-set-config -> RespSetConfig:
     return payload_
 
-  payload_resp_set_config= payload/RespSetConfig -> none:
+  payload-resp-set-config= payload/RespSetConfig -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_RESP_SET_CONFIG
+    payload-oneof-case_ = PAYLOAD-RESP-SET-CONFIG
 
-  payload_cmd_apply_config -> CmdApplyConfig:
+  payload-cmd-apply-config -> CmdApplyConfig:
     return payload_
 
-  payload_cmd_apply_config= payload/CmdApplyConfig -> none:
+  payload-cmd-apply-config= payload/CmdApplyConfig -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_CMD_APPLY_CONFIG
+    payload-oneof-case_ = PAYLOAD-CMD-APPLY-CONFIG
 
-  payload_resp_apply_config -> RespApplyConfig:
+  payload-resp-apply-config -> RespApplyConfig:
     return payload_
 
-  payload_resp_apply_config= payload/RespApplyConfig -> none:
+  payload-resp-apply-config= payload/RespApplyConfig -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_RESP_APPLY_CONFIG
+    payload-oneof-case_ = PAYLOAD-RESP-APPLY-CONFIG
 
   // ONEOF END: .WiFiConfigPayload.payload
   msg/int/*enum<WiFiConfigMsgType>*/ := 0
 
   constructor
       --msg/int?/*enum<WiFiConfigMsgType>?*/=null
-      --payload_cmd_get_status/CmdGetStatus?=null
-      --payload_resp_get_status/RespGetStatus?=null
-      --payload_cmd_set_config/CmdSetConfig?=null
-      --payload_resp_set_config/RespSetConfig?=null
-      --payload_cmd_apply_config/CmdApplyConfig?=null
-      --payload_resp_apply_config/RespApplyConfig?=null:
+      --payload-cmd-get-status/CmdGetStatus?=null
+      --payload-resp-get-status/RespGetStatus?=null
+      --payload-cmd-set-config/CmdSetConfig?=null
+      --payload-resp-set-config/RespSetConfig?=null
+      --payload-cmd-apply-config/CmdApplyConfig?=null
+      --payload-resp-apply-config/RespApplyConfig?=null:
     if msg != null:
       this.msg = msg
-    if payload_cmd_get_status != null:
-      this.payload_cmd_get_status = payload_cmd_get_status
-    if payload_resp_get_status != null:
-      this.payload_resp_get_status = payload_resp_get_status
-    if payload_cmd_set_config != null:
-      this.payload_cmd_set_config = payload_cmd_set_config
-    if payload_resp_set_config != null:
-      this.payload_resp_set_config = payload_resp_set_config
-    if payload_cmd_apply_config != null:
-      this.payload_cmd_apply_config = payload_cmd_apply_config
-    if payload_resp_apply_config != null:
-      this.payload_resp_apply_config = payload_resp_apply_config
+    if payload-cmd-get-status != null:
+      this.payload-cmd-get-status = payload-cmd-get-status
+    if payload-resp-get-status != null:
+      this.payload-resp-get-status = payload-resp-get-status
+    if payload-cmd-set-config != null:
+      this.payload-cmd-set-config = payload-cmd-set-config
+    if payload-resp-set-config != null:
+      this.payload-resp-set-config = payload-resp-set-config
+    if payload-cmd-apply-config != null:
+      this.payload-cmd-apply-config = payload-cmd-apply-config
+    if payload-resp-apply-config != null:
+      this.payload-resp-apply-config = payload-resp-apply-config
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        msg = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 10:
-        payload_cmd_get_status = CmdGetStatus.deserialize r
-      r.read_field 11:
-        payload_resp_get_status = RespGetStatus.deserialize r
-      r.read_field 12:
-        payload_cmd_set_config = CmdSetConfig.deserialize r
-      r.read_field 13:
-        payload_resp_set_config = RespSetConfig.deserialize r
-      r.read_field 14:
-        payload_cmd_apply_config = CmdApplyConfig.deserialize r
-      r.read_field 15:
-        payload_resp_apply_config = RespApplyConfig.deserialize r
+    r.read-message:
+      r.read-field 1:
+        msg = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 10:
+        payload-cmd-get-status = CmdGetStatus.deserialize r
+      r.read-field 11:
+        payload-resp-get-status = RespGetStatus.deserialize r
+      r.read-field 12:
+        payload-cmd-set-config = CmdSetConfig.deserialize r
+      r.read-field 13:
+        payload-resp-set-config = RespSetConfig.deserialize r
+      r.read-field 14:
+        payload-cmd-apply-config = CmdApplyConfig.deserialize r
+      r.read-field 15:
+        payload-resp-apply-config = RespApplyConfig.deserialize r
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1
-    if payload_oneof_case_ == PAYLOAD_CMD_GET_STATUS:
-      payload_.serialize w --as_field=PAYLOAD_CMD_GET_STATUS --oneof
-    if payload_oneof_case_ == PAYLOAD_RESP_GET_STATUS:
-      payload_.serialize w --as_field=PAYLOAD_RESP_GET_STATUS --oneof
-    if payload_oneof_case_ == PAYLOAD_CMD_SET_CONFIG:
-      payload_.serialize w --as_field=PAYLOAD_CMD_SET_CONFIG --oneof
-    if payload_oneof_case_ == PAYLOAD_RESP_SET_CONFIG:
-      payload_.serialize w --as_field=PAYLOAD_RESP_SET_CONFIG --oneof
-    if payload_oneof_case_ == PAYLOAD_CMD_APPLY_CONFIG:
-      payload_.serialize w --as_field=PAYLOAD_CMD_APPLY_CONFIG --oneof
-    if payload_oneof_case_ == PAYLOAD_RESP_APPLY_CONFIG:
-      payload_.serialize w --as_field=PAYLOAD_RESP_APPLY_CONFIG --oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1
+    if payload-oneof-case_ == PAYLOAD-CMD-GET-STATUS:
+      payload_.serialize w --as-field=PAYLOAD-CMD-GET-STATUS --oneof
+    if payload-oneof-case_ == PAYLOAD-RESP-GET-STATUS:
+      payload_.serialize w --as-field=PAYLOAD-RESP-GET-STATUS --oneof
+    if payload-oneof-case_ == PAYLOAD-CMD-SET-CONFIG:
+      payload_.serialize w --as-field=PAYLOAD-CMD-SET-CONFIG --oneof
+    if payload-oneof-case_ == PAYLOAD-RESP-SET-CONFIG:
+      payload_.serialize w --as-field=PAYLOAD-RESP-SET-CONFIG --oneof
+    if payload-oneof-case_ == PAYLOAD-CMD-APPLY-CONFIG:
+      payload_.serialize w --as-field=PAYLOAD-CMD-APPLY-CONFIG --oneof
+    if payload-oneof-case_ == PAYLOAD-RESP-APPLY-CONFIG:
+      payload_.serialize w --as-field=PAYLOAD-RESP-APPLY-CONFIG --oneof
 
-  num_fields_set -> int:
-    return (payload_oneof_case_ == null ? 0 : 1)
+  num-fields-set -> int:
+    return (payload-oneof-case_ == null ? 0 : 1)
       + (msg == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1)
-      + (payload_oneof_case_ == PAYLOAD_CMD_GET_STATUS ? (_protobuf.size_embedded_message (payload_cmd_get_status.protobuf_size) --as_field=10) : 0)
-      + (payload_oneof_case_ == PAYLOAD_RESP_GET_STATUS ? (_protobuf.size_embedded_message (payload_resp_get_status.protobuf_size) --as_field=11) : 0)
-      + (payload_oneof_case_ == PAYLOAD_CMD_SET_CONFIG ? (_protobuf.size_embedded_message (payload_cmd_set_config.protobuf_size) --as_field=12) : 0)
-      + (payload_oneof_case_ == PAYLOAD_RESP_SET_CONFIG ? (_protobuf.size_embedded_message (payload_resp_set_config.protobuf_size) --as_field=13) : 0)
-      + (payload_oneof_case_ == PAYLOAD_CMD_APPLY_CONFIG ? (_protobuf.size_embedded_message (payload_cmd_apply_config.protobuf_size) --as_field=14) : 0)
-      + (payload_oneof_case_ == PAYLOAD_RESP_APPLY_CONFIG ? (_protobuf.size_embedded_message (payload_resp_apply_config.protobuf_size) --as_field=15) : 0)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1)
+      + (payload-oneof-case_ == PAYLOAD-CMD-GET-STATUS ? (_protobuf.size-embedded-message (payload-cmd-get-status.protobuf-size) --as-field=10) : 0)
+      + (payload-oneof-case_ == PAYLOAD-RESP-GET-STATUS ? (_protobuf.size-embedded-message (payload-resp-get-status.protobuf-size) --as-field=11) : 0)
+      + (payload-oneof-case_ == PAYLOAD-CMD-SET-CONFIG ? (_protobuf.size-embedded-message (payload-cmd-set-config.protobuf-size) --as-field=12) : 0)
+      + (payload-oneof-case_ == PAYLOAD-RESP-SET-CONFIG ? (_protobuf.size-embedded-message (payload-resp-set-config.protobuf-size) --as-field=13) : 0)
+      + (payload-oneof-case_ == PAYLOAD-CMD-APPLY-CONFIG ? (_protobuf.size-embedded-message (payload-cmd-apply-config.protobuf-size) --as-field=14) : 0)
+      + (payload-oneof-case_ == PAYLOAD-RESP-APPLY-CONFIG ? (_protobuf.size-embedded-message (payload-resp-apply-config.protobuf-size) --as-field=15) : 0)
 
 // MESSAGE END: .WiFiConfigPayload
 

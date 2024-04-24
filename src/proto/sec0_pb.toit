@@ -3,11 +3,11 @@
 
 import protobuf as _protobuf
 import core as _core
-import .constants_pb as _constants
+import .constants-pb as _constants
 
 // ENUM START: Sec0MsgType
-Sec0MsgType_S0_Session_Command/int/*enum<Sec0MsgType>*/ ::= 0
-Sec0MsgType_S0_Session_Response/int/*enum<Sec0MsgType>*/ ::= 1
+Sec0MsgType-S0-Session-Command/int/*enum<Sec0MsgType>*/ ::= 0
+Sec0MsgType-S0-Session-Response/int/*enum<Sec0MsgType>*/ ::= 1
 // ENUM END: .Sec0MsgType
 
 // MESSAGE START: .S0SessionCmd
@@ -16,16 +16,16 @@ class S0SessionCmd extends _protobuf.Message:
   constructor:
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
+    r.read-message:
       1
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
     1
-  num_fields_set -> int:
+  num-fields-set -> int:
     return 0
 
-  protobuf_size -> int:
+  protobuf-size -> int:
     return 0
 
 // MESSAGE END: .S0SessionCmd
@@ -40,19 +40,19 @@ class S0SessionResp extends _protobuf.Message:
       this.status = status
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        status = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
+    r.read-message:
+      r.read-field 1:
+        status = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1
 
-  num_fields_set -> int:
+  num-fields-set -> int:
     return (status == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1)
 
 // MESSAGE END: .S0SessionResp
 
@@ -60,71 +60,71 @@ class S0SessionResp extends _protobuf.Message:
 class Sec0Payload extends _protobuf.Message:
   // ONEOF START: .Sec0Payload.payload
   payload_ := null
-  payload_oneof_case_/int? := null
+  payload-oneof-case_/int? := null
 
-  payload_oneof_clear -> none:
+  payload-oneof-clear -> none:
     payload_ = null
-    payload_oneof_case_ = null
+    payload-oneof-case_ = null
 
-  static PAYLOAD_SC/int ::= 20
-  static PAYLOAD_SR/int ::= 21
+  static PAYLOAD-SC/int ::= 20
+  static PAYLOAD-SR/int ::= 21
 
-  payload_oneof_case -> int?:
-    return payload_oneof_case_
+  payload-oneof-case -> int?:
+    return payload-oneof-case_
 
-  payload_sc -> S0SessionCmd:
+  payload-sc -> S0SessionCmd:
     return payload_
 
-  payload_sc= payload/S0SessionCmd -> none:
+  payload-sc= payload/S0SessionCmd -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_SC
+    payload-oneof-case_ = PAYLOAD-SC
 
-  payload_sr -> S0SessionResp:
+  payload-sr -> S0SessionResp:
     return payload_
 
-  payload_sr= payload/S0SessionResp -> none:
+  payload-sr= payload/S0SessionResp -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_SR
+    payload-oneof-case_ = PAYLOAD-SR
 
   // ONEOF END: .Sec0Payload.payload
   msg/int/*enum<Sec0MsgType>*/ := 0
 
   constructor
       --msg/int?/*enum<Sec0MsgType>?*/=null
-      --payload_sc/S0SessionCmd?=null
-      --payload_sr/S0SessionResp?=null:
+      --payload-sc/S0SessionCmd?=null
+      --payload-sr/S0SessionResp?=null:
     if msg != null:
       this.msg = msg
-    if payload_sc != null:
-      this.payload_sc = payload_sc
-    if payload_sr != null:
-      this.payload_sr = payload_sr
+    if payload-sc != null:
+      this.payload-sc = payload-sc
+    if payload-sr != null:
+      this.payload-sr = payload-sr
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        msg = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 20:
-        payload_sc = S0SessionCmd.deserialize r
-      r.read_field 21:
-        payload_sr = S0SessionResp.deserialize r
+    r.read-message:
+      r.read-field 1:
+        msg = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 20:
+        payload-sc = S0SessionCmd.deserialize r
+      r.read-field 21:
+        payload-sr = S0SessionResp.deserialize r
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1
-    if payload_oneof_case_ == PAYLOAD_SC:
-      payload_.serialize w --as_field=PAYLOAD_SC --oneof
-    if payload_oneof_case_ == PAYLOAD_SR:
-      payload_.serialize w --as_field=PAYLOAD_SR --oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1
+    if payload-oneof-case_ == PAYLOAD-SC:
+      payload_.serialize w --as-field=PAYLOAD-SC --oneof
+    if payload-oneof-case_ == PAYLOAD-SR:
+      payload_.serialize w --as-field=PAYLOAD-SR --oneof
 
-  num_fields_set -> int:
-    return (payload_oneof_case_ == null ? 0 : 1)
+  num-fields-set -> int:
+    return (payload-oneof-case_ == null ? 0 : 1)
       + (msg == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1)
-      + (payload_oneof_case_ == PAYLOAD_SC ? (_protobuf.size_embedded_message (payload_sc.protobuf_size) --as_field=20) : 0)
-      + (payload_oneof_case_ == PAYLOAD_SR ? (_protobuf.size_embedded_message (payload_sr.protobuf_size) --as_field=21) : 0)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1)
+      + (payload-oneof-case_ == PAYLOAD-SC ? (_protobuf.size-embedded-message (payload-sc.protobuf-size) --as-field=20) : 0)
+      + (payload-oneof-case_ == PAYLOAD-SR ? (_protobuf.size-embedded-message (payload-sr.protobuf-size) --as-field=21) : 0)
 
 // MESSAGE END: .Sec0Payload
 

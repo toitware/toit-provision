@@ -3,101 +3,101 @@
 
 import protobuf as _protobuf
 import core as _core
-import .sec0_pb as _sec0
-import .sec1_pb as _sec1
-import .sec2_pb as _sec2
+import .sec0-pb as _sec0
+import .sec1-pb as _sec1
+import .sec2-pb as _sec2
 
 // ENUM START: SecSchemeVersion
-SecSchemeVersion_SecScheme0/int/*enum<SecSchemeVersion>*/ ::= 0
-SecSchemeVersion_SecScheme1/int/*enum<SecSchemeVersion>*/ ::= 1
-SecSchemeVersion_SecScheme2/int/*enum<SecSchemeVersion>*/ ::= 2
+SecSchemeVersion-SecScheme0/int/*enum<SecSchemeVersion>*/ ::= 0
+SecSchemeVersion-SecScheme1/int/*enum<SecSchemeVersion>*/ ::= 1
+SecSchemeVersion-SecScheme2/int/*enum<SecSchemeVersion>*/ ::= 2
 // ENUM END: .SecSchemeVersion
 
 // MESSAGE START: .SessionData
 class SessionData extends _protobuf.Message:
   // ONEOF START: .SessionData.proto
   proto_ := null
-  proto_oneof_case_/int? := null
+  proto-oneof-case_/int? := null
 
-  proto_oneof_clear -> none:
+  proto-oneof-clear -> none:
     proto_ = null
-    proto_oneof_case_ = null
+    proto-oneof-case_ = null
 
-  static PROTO_SEC0/int ::= 10
-  static PROTO_SEC1/int ::= 11
-  static PROTO_SEC2/int ::= 12
+  static PROTO-SEC0/int ::= 10
+  static PROTO-SEC1/int ::= 11
+  static PROTO-SEC2/int ::= 12
 
-  proto_oneof_case -> int?:
-    return proto_oneof_case_
+  proto-oneof-case -> int?:
+    return proto-oneof-case_
 
-  proto_sec0 -> _sec0.Sec0Payload:
+  proto-sec0 -> _sec0.Sec0Payload:
     return proto_
 
-  proto_sec0= proto/_sec0.Sec0Payload -> none:
+  proto-sec0= proto/_sec0.Sec0Payload -> none:
     proto_ = proto
-    proto_oneof_case_ = PROTO_SEC0
+    proto-oneof-case_ = PROTO-SEC0
 
-  proto_sec1 -> _sec1.Sec1Payload:
+  proto-sec1 -> _sec1.Sec1Payload:
     return proto_
 
-  proto_sec1= proto/_sec1.Sec1Payload -> none:
+  proto-sec1= proto/_sec1.Sec1Payload -> none:
     proto_ = proto
-    proto_oneof_case_ = PROTO_SEC1
+    proto-oneof-case_ = PROTO-SEC1
 
-  proto_sec2 -> _sec2.Sec2Payload:
+  proto-sec2 -> _sec2.Sec2Payload:
     return proto_
 
-  proto_sec2= proto/_sec2.Sec2Payload -> none:
+  proto-sec2= proto/_sec2.Sec2Payload -> none:
     proto_ = proto
-    proto_oneof_case_ = PROTO_SEC2
+    proto-oneof-case_ = PROTO-SEC2
 
   // ONEOF END: .SessionData.proto
-  sec_ver/int/*enum<SecSchemeVersion>*/ := 0
+  sec-ver/int/*enum<SecSchemeVersion>*/ := 0
 
   constructor
-      --sec_ver/int?/*enum<SecSchemeVersion>?*/=null
-      --proto_sec0/_sec0.Sec0Payload?=null
-      --proto_sec1/_sec1.Sec1Payload?=null
-      --proto_sec2/_sec2.Sec2Payload?=null:
-    if sec_ver != null:
-      this.sec_ver = sec_ver
-    if proto_sec0 != null:
-      this.proto_sec0 = proto_sec0
-    if proto_sec1 != null:
-      this.proto_sec1 = proto_sec1
-    if proto_sec2 != null:
-      this.proto_sec2 = proto_sec2
+      --sec-ver/int?/*enum<SecSchemeVersion>?*/=null
+      --proto-sec0/_sec0.Sec0Payload?=null
+      --proto-sec1/_sec1.Sec1Payload?=null
+      --proto-sec2/_sec2.Sec2Payload?=null:
+    if sec-ver != null:
+      this.sec-ver = sec-ver
+    if proto-sec0 != null:
+      this.proto-sec0 = proto-sec0
+    if proto-sec1 != null:
+      this.proto-sec1 = proto-sec1
+    if proto-sec2 != null:
+      this.proto-sec2 = proto-sec2
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 2:
-        sec_ver = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 10:
-        proto_sec0 = _sec0.Sec0Payload.deserialize r
-      r.read_field 11:
-        proto_sec1 = _sec1.Sec1Payload.deserialize r
-      r.read_field 12:
-        proto_sec2 = _sec2.Sec2Payload.deserialize r
+    r.read-message:
+      r.read-field 2:
+        sec-ver = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 10:
+        proto-sec0 = _sec0.Sec0Payload.deserialize r
+      r.read-field 11:
+        proto-sec1 = _sec1.Sec1Payload.deserialize r
+      r.read-field 12:
+        proto-sec2 = _sec2.Sec2Payload.deserialize r
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM sec_ver --as_field=2
-    if proto_oneof_case_ == PROTO_SEC0:
-      proto_.serialize w --as_field=PROTO_SEC0 --oneof
-    if proto_oneof_case_ == PROTO_SEC1:
-      proto_.serialize w --as_field=PROTO_SEC1 --oneof
-    if proto_oneof_case_ == PROTO_SEC2:
-      proto_.serialize w --as_field=PROTO_SEC2 --oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM sec-ver --as-field=2
+    if proto-oneof-case_ == PROTO-SEC0:
+      proto_.serialize w --as-field=PROTO-SEC0 --oneof
+    if proto-oneof-case_ == PROTO-SEC1:
+      proto_.serialize w --as-field=PROTO-SEC1 --oneof
+    if proto-oneof-case_ == PROTO-SEC2:
+      proto_.serialize w --as-field=PROTO-SEC2 --oneof
 
-  num_fields_set -> int:
-    return (proto_oneof_case_ == null ? 0 : 1)
-      + (sec_ver == 0 ? 0 : 1)
+  num-fields-set -> int:
+    return (proto-oneof-case_ == null ? 0 : 1)
+      + (sec-ver == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM sec_ver --as_field=2)
-      + (proto_oneof_case_ == PROTO_SEC0 ? (_protobuf.size_embedded_message (proto_sec0.protobuf_size) --as_field=10) : 0)
-      + (proto_oneof_case_ == PROTO_SEC1 ? (_protobuf.size_embedded_message (proto_sec1.protobuf_size) --as_field=11) : 0)
-      + (proto_oneof_case_ == PROTO_SEC2 ? (_protobuf.size_embedded_message (proto_sec2.protobuf_size) --as_field=12) : 0)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM sec-ver --as-field=2)
+      + (proto-oneof-case_ == PROTO-SEC0 ? (_protobuf.size-embedded-message (proto-sec0.protobuf-size) --as-field=10) : 0)
+      + (proto-oneof-case_ == PROTO-SEC1 ? (_protobuf.size-embedded-message (proto-sec1.protobuf-size) --as-field=11) : 0)
+      + (proto-oneof-case_ == PROTO-SEC2 ? (_protobuf.size-embedded-message (proto-sec2.protobuf-size) --as-field=12) : 0)
 
 // MESSAGE END: .SessionData
 
