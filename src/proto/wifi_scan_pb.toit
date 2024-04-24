@@ -3,68 +3,68 @@
 
 import protobuf as _protobuf
 import core as _core
-import .constants_pb as _constants
-import .wifi_constants_pb as _wifi_constants
+import .constants-pb as _constants
+import .wifi-constants-pb as _wifi-constants
 
 // ENUM START: WiFiScanMsgType
-WiFiScanMsgType_TypeCmdScanStart/int/*enum<WiFiScanMsgType>*/ ::= 0
-WiFiScanMsgType_TypeRespScanStart/int/*enum<WiFiScanMsgType>*/ ::= 1
-WiFiScanMsgType_TypeCmdScanStatus/int/*enum<WiFiScanMsgType>*/ ::= 2
-WiFiScanMsgType_TypeRespScanStatus/int/*enum<WiFiScanMsgType>*/ ::= 3
-WiFiScanMsgType_TypeCmdScanResult/int/*enum<WiFiScanMsgType>*/ ::= 4
-WiFiScanMsgType_TypeRespScanResult/int/*enum<WiFiScanMsgType>*/ ::= 5
+WiFiScanMsgType-TypeCmdScanStart/int/*enum<WiFiScanMsgType>*/ ::= 0
+WiFiScanMsgType-TypeRespScanStart/int/*enum<WiFiScanMsgType>*/ ::= 1
+WiFiScanMsgType-TypeCmdScanStatus/int/*enum<WiFiScanMsgType>*/ ::= 2
+WiFiScanMsgType-TypeRespScanStatus/int/*enum<WiFiScanMsgType>*/ ::= 3
+WiFiScanMsgType-TypeCmdScanResult/int/*enum<WiFiScanMsgType>*/ ::= 4
+WiFiScanMsgType-TypeRespScanResult/int/*enum<WiFiScanMsgType>*/ ::= 5
 // ENUM END: .WiFiScanMsgType
 
 // MESSAGE START: .CmdScanStart
 class CmdScanStart extends _protobuf.Message:
   blocking/bool := false
   passive/bool := false
-  group_channels/int := 0
-  period_ms/int := 0
+  group-channels/int := 0
+  period-ms/int := 0
 
   constructor
       --blocking/bool?=null
       --passive/bool?=null
-      --group_channels/int?=null
-      --period_ms/int?=null:
+      --group-channels/int?=null
+      --period-ms/int?=null:
     if blocking != null:
       this.blocking = blocking
     if passive != null:
       this.passive = passive
-    if group_channels != null:
-      this.group_channels = group_channels
-    if period_ms != null:
-      this.period_ms = period_ms
+    if group-channels != null:
+      this.group-channels = group-channels
+    if period-ms != null:
+      this.period-ms = period-ms
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        blocking = r.read_primitive _protobuf.PROTOBUF_TYPE_BOOL
-      r.read_field 2:
-        passive = r.read_primitive _protobuf.PROTOBUF_TYPE_BOOL
-      r.read_field 3:
-        group_channels = r.read_primitive _protobuf.PROTOBUF_TYPE_UINT32
-      r.read_field 4:
-        period_ms = r.read_primitive _protobuf.PROTOBUF_TYPE_UINT32
+    r.read-message:
+      r.read-field 1:
+        blocking = r.read-primitive _protobuf.PROTOBUF-TYPE-BOOL
+      r.read-field 2:
+        passive = r.read-primitive _protobuf.PROTOBUF-TYPE-BOOL
+      r.read-field 3:
+        group-channels = r.read-primitive _protobuf.PROTOBUF-TYPE-UINT32
+      r.read-field 4:
+        period-ms = r.read-primitive _protobuf.PROTOBUF-TYPE-UINT32
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BOOL blocking --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BOOL passive --as_field=2
-    w.write_primitive _protobuf.PROTOBUF_TYPE_UINT32 group_channels --as_field=3
-    w.write_primitive _protobuf.PROTOBUF_TYPE_UINT32 period_ms --as_field=4
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BOOL blocking --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BOOL passive --as-field=2
+    w.write-primitive _protobuf.PROTOBUF-TYPE-UINT32 group-channels --as-field=3
+    w.write-primitive _protobuf.PROTOBUF-TYPE-UINT32 period-ms --as-field=4
 
-  num_fields_set -> int:
+  num-fields-set -> int:
     return (blocking == false ? 0 : 1)
       + (passive == false ? 0 : 1)
-      + (group_channels == 0 ? 0 : 1)
-      + (period_ms == 0 ? 0 : 1)
+      + (group-channels == 0 ? 0 : 1)
+      + (period-ms == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BOOL blocking --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BOOL passive --as_field=2)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_UINT32 group_channels --as_field=3)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_UINT32 period_ms --as_field=4)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BOOL blocking --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BOOL passive --as-field=2)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-UINT32 group-channels --as-field=3)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-UINT32 period-ms --as-field=4)
 
 // MESSAGE END: .CmdScanStart
 
@@ -74,16 +74,16 @@ class RespScanStart extends _protobuf.Message:
   constructor:
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
+    r.read-message:
       1
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
     1
-  num_fields_set -> int:
+  num-fields-set -> int:
     return 0
 
-  protobuf_size -> int:
+  protobuf-size -> int:
     return 0
 
 // MESSAGE END: .RespScanStart
@@ -94,87 +94,87 @@ class CmdScanStatus extends _protobuf.Message:
   constructor:
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
+    r.read-message:
       1
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
     1
-  num_fields_set -> int:
+  num-fields-set -> int:
     return 0
 
-  protobuf_size -> int:
+  protobuf-size -> int:
     return 0
 
 // MESSAGE END: .CmdScanStatus
 
 // MESSAGE START: .RespScanStatus
 class RespScanStatus extends _protobuf.Message:
-  scan_finished/bool := false
-  result_count/int := 0
+  scan-finished/bool := false
+  result-count/int := 0
 
   constructor
-      --scan_finished/bool?=null
-      --result_count/int?=null:
-    if scan_finished != null:
-      this.scan_finished = scan_finished
-    if result_count != null:
-      this.result_count = result_count
+      --scan-finished/bool?=null
+      --result-count/int?=null:
+    if scan-finished != null:
+      this.scan-finished = scan-finished
+    if result-count != null:
+      this.result-count = result-count
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        scan_finished = r.read_primitive _protobuf.PROTOBUF_TYPE_BOOL
-      r.read_field 2:
-        result_count = r.read_primitive _protobuf.PROTOBUF_TYPE_UINT32
+    r.read-message:
+      r.read-field 1:
+        scan-finished = r.read-primitive _protobuf.PROTOBUF-TYPE-BOOL
+      r.read-field 2:
+        result-count = r.read-primitive _protobuf.PROTOBUF-TYPE-UINT32
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BOOL scan_finished --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_UINT32 result_count --as_field=2
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BOOL scan-finished --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-UINT32 result-count --as-field=2
 
-  num_fields_set -> int:
-    return (scan_finished == false ? 0 : 1)
-      + (result_count == 0 ? 0 : 1)
+  num-fields-set -> int:
+    return (scan-finished == false ? 0 : 1)
+      + (result-count == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BOOL scan_finished --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_UINT32 result_count --as_field=2)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BOOL scan-finished --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-UINT32 result-count --as-field=2)
 
 // MESSAGE END: .RespScanStatus
 
 // MESSAGE START: .CmdScanResult
 class CmdScanResult extends _protobuf.Message:
-  start_index/int := 0
+  start-index/int := 0
   count/int := 0
 
   constructor
-      --start_index/int?=null
+      --start-index/int?=null
       --count/int?=null:
-    if start_index != null:
-      this.start_index = start_index
+    if start-index != null:
+      this.start-index = start-index
     if count != null:
       this.count = count
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        start_index = r.read_primitive _protobuf.PROTOBUF_TYPE_UINT32
-      r.read_field 2:
-        count = r.read_primitive _protobuf.PROTOBUF_TYPE_UINT32
+    r.read-message:
+      r.read-field 1:
+        start-index = r.read-primitive _protobuf.PROTOBUF-TYPE-UINT32
+      r.read-field 2:
+        count = r.read-primitive _protobuf.PROTOBUF-TYPE-UINT32
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_UINT32 start_index --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_UINT32 count --as_field=2
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-UINT32 start-index --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-UINT32 count --as-field=2
 
-  num_fields_set -> int:
-    return (start_index == 0 ? 0 : 1)
+  num-fields-set -> int:
+    return (start-index == 0 ? 0 : 1)
       + (count == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_UINT32 start_index --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_UINT32 count --as_field=2)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-UINT32 start-index --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-UINT32 count --as-field=2)
 
 // MESSAGE END: .CmdScanResult
 
@@ -204,39 +204,39 @@ class WiFiScanResult extends _protobuf.Message:
       this.auth = auth
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        ssid = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 2:
-        channel = r.read_primitive _protobuf.PROTOBUF_TYPE_UINT32
-      r.read_field 3:
-        rssi = r.read_primitive _protobuf.PROTOBUF_TYPE_INT32
-      r.read_field 4:
-        bssid = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 5:
-        auth = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
+    r.read-message:
+      r.read-field 1:
+        ssid = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 2:
+        channel = r.read-primitive _protobuf.PROTOBUF-TYPE-UINT32
+      r.read-field 3:
+        rssi = r.read-primitive _protobuf.PROTOBUF-TYPE-INT32
+      r.read-field 4:
+        bssid = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 5:
+        auth = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES ssid --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_UINT32 channel --as_field=2
-    w.write_primitive _protobuf.PROTOBUF_TYPE_INT32 rssi --as_field=3
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES bssid --as_field=4
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM auth --as_field=5
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES ssid --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-UINT32 channel --as-field=2
+    w.write-primitive _protobuf.PROTOBUF-TYPE-INT32 rssi --as-field=3
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES bssid --as-field=4
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM auth --as-field=5
 
-  num_fields_set -> int:
-    return (ssid.is_empty ? 0 : 1)
+  num-fields-set -> int:
+    return (ssid.is-empty ? 0 : 1)
       + (channel == 0 ? 0 : 1)
       + (rssi == 0 ? 0 : 1)
-      + (bssid.is_empty ? 0 : 1)
+      + (bssid.is-empty ? 0 : 1)
       + (auth == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES ssid --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_UINT32 channel --as_field=2)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_INT32 rssi --as_field=3)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES bssid --as_field=4)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM auth --as_field=5)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES ssid --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-UINT32 channel --as-field=2)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-INT32 rssi --as-field=3)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES bssid --as-field=4)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM auth --as-field=5)
 
 // MESSAGE END: .WiFiScanResult
 
@@ -250,21 +250,21 @@ class RespScanResult extends _protobuf.Message:
       this.entries = entries
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        entries = r.read_array _protobuf.PROTOBUF_TYPE_MESSAGE entries:
+    r.read-message:
+      r.read-field 1:
+        entries = r.read-array _protobuf.PROTOBUF-TYPE-MESSAGE entries:
           WiFiScanResult.deserialize r
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_array _protobuf.PROTOBUF_TYPE_MESSAGE entries --as_field=1: | value/WiFiScanResult | 
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-array _protobuf.PROTOBUF-TYPE-MESSAGE entries --as-field=1: | value/WiFiScanResult | 
       value.serialize w
 
-  num_fields_set -> int:
-    return (entries.is_empty ? 0 : 1)
+  num-fields-set -> int:
+    return (entries.is-empty ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_array _protobuf.PROTOBUF_TYPE_MESSAGE entries --as_field=1)
+  protobuf-size -> int:
+    return (_protobuf.size-array _protobuf.PROTOBUF-TYPE-MESSAGE entries --as-field=1)
 
 // MESSAGE END: .RespScanResult
 
@@ -272,63 +272,63 @@ class RespScanResult extends _protobuf.Message:
 class WiFiScanPayload extends _protobuf.Message:
   // ONEOF START: .WiFiScanPayload.payload
   payload_ := null
-  payload_oneof_case_/int? := null
+  payload-oneof-case_/int? := null
 
-  payload_oneof_clear -> none:
+  payload-oneof-clear -> none:
     payload_ = null
-    payload_oneof_case_ = null
+    payload-oneof-case_ = null
 
-  static PAYLOAD_CMD_SCAN_START/int ::= 10
-  static PAYLOAD_RESP_SCAN_START/int ::= 11
-  static PAYLOAD_CMD_SCAN_STATUS/int ::= 12
-  static PAYLOAD_RESP_SCAN_STATUS/int ::= 13
-  static PAYLOAD_CMD_SCAN_RESULT/int ::= 14
-  static PAYLOAD_RESP_SCAN_RESULT/int ::= 15
+  static PAYLOAD-CMD-SCAN-START/int ::= 10
+  static PAYLOAD-RESP-SCAN-START/int ::= 11
+  static PAYLOAD-CMD-SCAN-STATUS/int ::= 12
+  static PAYLOAD-RESP-SCAN-STATUS/int ::= 13
+  static PAYLOAD-CMD-SCAN-RESULT/int ::= 14
+  static PAYLOAD-RESP-SCAN-RESULT/int ::= 15
 
-  payload_oneof_case -> int?:
-    return payload_oneof_case_
+  payload-oneof-case -> int?:
+    return payload-oneof-case_
 
-  payload_cmd_scan_start -> CmdScanStart:
+  payload-cmd-scan-start -> CmdScanStart:
     return payload_
 
-  payload_cmd_scan_start= payload/CmdScanStart -> none:
+  payload-cmd-scan-start= payload/CmdScanStart -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_CMD_SCAN_START
+    payload-oneof-case_ = PAYLOAD-CMD-SCAN-START
 
-  payload_resp_scan_start -> RespScanStart:
+  payload-resp-scan-start -> RespScanStart:
     return payload_
 
-  payload_resp_scan_start= payload/RespScanStart -> none:
+  payload-resp-scan-start= payload/RespScanStart -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_RESP_SCAN_START
+    payload-oneof-case_ = PAYLOAD-RESP-SCAN-START
 
-  payload_cmd_scan_status -> CmdScanStatus:
+  payload-cmd-scan-status -> CmdScanStatus:
     return payload_
 
-  payload_cmd_scan_status= payload/CmdScanStatus -> none:
+  payload-cmd-scan-status= payload/CmdScanStatus -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_CMD_SCAN_STATUS
+    payload-oneof-case_ = PAYLOAD-CMD-SCAN-STATUS
 
-  payload_resp_scan_status -> RespScanStatus:
+  payload-resp-scan-status -> RespScanStatus:
     return payload_
 
-  payload_resp_scan_status= payload/RespScanStatus -> none:
+  payload-resp-scan-status= payload/RespScanStatus -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_RESP_SCAN_STATUS
+    payload-oneof-case_ = PAYLOAD-RESP-SCAN-STATUS
 
-  payload_cmd_scan_result -> CmdScanResult:
+  payload-cmd-scan-result -> CmdScanResult:
     return payload_
 
-  payload_cmd_scan_result= payload/CmdScanResult -> none:
+  payload-cmd-scan-result= payload/CmdScanResult -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_CMD_SCAN_RESULT
+    payload-oneof-case_ = PAYLOAD-CMD-SCAN-RESULT
 
-  payload_resp_scan_result -> RespScanResult:
+  payload-resp-scan-result -> RespScanResult:
     return payload_
 
-  payload_resp_scan_result= payload/RespScanResult -> none:
+  payload-resp-scan-result= payload/RespScanResult -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_RESP_SCAN_RESULT
+    payload-oneof-case_ = PAYLOAD-RESP-SCAN-RESULT
 
   // ONEOF END: .WiFiScanPayload.payload
   msg/int/*enum<WiFiScanMsgType>*/ := 0
@@ -337,79 +337,79 @@ class WiFiScanPayload extends _protobuf.Message:
   constructor
       --msg/int?/*enum<WiFiScanMsgType>?*/=null
       --status/int?/*enum<_constants.Status>?*/=null
-      --payload_cmd_scan_start/CmdScanStart?=null
-      --payload_resp_scan_start/RespScanStart?=null
-      --payload_cmd_scan_status/CmdScanStatus?=null
-      --payload_resp_scan_status/RespScanStatus?=null
-      --payload_cmd_scan_result/CmdScanResult?=null
-      --payload_resp_scan_result/RespScanResult?=null:
+      --payload-cmd-scan-start/CmdScanStart?=null
+      --payload-resp-scan-start/RespScanStart?=null
+      --payload-cmd-scan-status/CmdScanStatus?=null
+      --payload-resp-scan-status/RespScanStatus?=null
+      --payload-cmd-scan-result/CmdScanResult?=null
+      --payload-resp-scan-result/RespScanResult?=null:
     if msg != null:
       this.msg = msg
     if status != null:
       this.status = status
-    if payload_cmd_scan_start != null:
-      this.payload_cmd_scan_start = payload_cmd_scan_start
-    if payload_resp_scan_start != null:
-      this.payload_resp_scan_start = payload_resp_scan_start
-    if payload_cmd_scan_status != null:
-      this.payload_cmd_scan_status = payload_cmd_scan_status
-    if payload_resp_scan_status != null:
-      this.payload_resp_scan_status = payload_resp_scan_status
-    if payload_cmd_scan_result != null:
-      this.payload_cmd_scan_result = payload_cmd_scan_result
-    if payload_resp_scan_result != null:
-      this.payload_resp_scan_result = payload_resp_scan_result
+    if payload-cmd-scan-start != null:
+      this.payload-cmd-scan-start = payload-cmd-scan-start
+    if payload-resp-scan-start != null:
+      this.payload-resp-scan-start = payload-resp-scan-start
+    if payload-cmd-scan-status != null:
+      this.payload-cmd-scan-status = payload-cmd-scan-status
+    if payload-resp-scan-status != null:
+      this.payload-resp-scan-status = payload-resp-scan-status
+    if payload-cmd-scan-result != null:
+      this.payload-cmd-scan-result = payload-cmd-scan-result
+    if payload-resp-scan-result != null:
+      this.payload-resp-scan-result = payload-resp-scan-result
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        msg = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 2:
-        status = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 10:
-        payload_cmd_scan_start = CmdScanStart.deserialize r
-      r.read_field 11:
-        payload_resp_scan_start = RespScanStart.deserialize r
-      r.read_field 12:
-        payload_cmd_scan_status = CmdScanStatus.deserialize r
-      r.read_field 13:
-        payload_resp_scan_status = RespScanStatus.deserialize r
-      r.read_field 14:
-        payload_cmd_scan_result = CmdScanResult.deserialize r
-      r.read_field 15:
-        payload_resp_scan_result = RespScanResult.deserialize r
+    r.read-message:
+      r.read-field 1:
+        msg = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 2:
+        status = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 10:
+        payload-cmd-scan-start = CmdScanStart.deserialize r
+      r.read-field 11:
+        payload-resp-scan-start = RespScanStart.deserialize r
+      r.read-field 12:
+        payload-cmd-scan-status = CmdScanStatus.deserialize r
+      r.read-field 13:
+        payload-resp-scan-status = RespScanStatus.deserialize r
+      r.read-field 14:
+        payload-cmd-scan-result = CmdScanResult.deserialize r
+      r.read-field 15:
+        payload-resp-scan-result = RespScanResult.deserialize r
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=2
-    if payload_oneof_case_ == PAYLOAD_CMD_SCAN_START:
-      payload_.serialize w --as_field=PAYLOAD_CMD_SCAN_START --oneof
-    if payload_oneof_case_ == PAYLOAD_RESP_SCAN_START:
-      payload_.serialize w --as_field=PAYLOAD_RESP_SCAN_START --oneof
-    if payload_oneof_case_ == PAYLOAD_CMD_SCAN_STATUS:
-      payload_.serialize w --as_field=PAYLOAD_CMD_SCAN_STATUS --oneof
-    if payload_oneof_case_ == PAYLOAD_RESP_SCAN_STATUS:
-      payload_.serialize w --as_field=PAYLOAD_RESP_SCAN_STATUS --oneof
-    if payload_oneof_case_ == PAYLOAD_CMD_SCAN_RESULT:
-      payload_.serialize w --as_field=PAYLOAD_CMD_SCAN_RESULT --oneof
-    if payload_oneof_case_ == PAYLOAD_RESP_SCAN_RESULT:
-      payload_.serialize w --as_field=PAYLOAD_RESP_SCAN_RESULT --oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=2
+    if payload-oneof-case_ == PAYLOAD-CMD-SCAN-START:
+      payload_.serialize w --as-field=PAYLOAD-CMD-SCAN-START --oneof
+    if payload-oneof-case_ == PAYLOAD-RESP-SCAN-START:
+      payload_.serialize w --as-field=PAYLOAD-RESP-SCAN-START --oneof
+    if payload-oneof-case_ == PAYLOAD-CMD-SCAN-STATUS:
+      payload_.serialize w --as-field=PAYLOAD-CMD-SCAN-STATUS --oneof
+    if payload-oneof-case_ == PAYLOAD-RESP-SCAN-STATUS:
+      payload_.serialize w --as-field=PAYLOAD-RESP-SCAN-STATUS --oneof
+    if payload-oneof-case_ == PAYLOAD-CMD-SCAN-RESULT:
+      payload_.serialize w --as-field=PAYLOAD-CMD-SCAN-RESULT --oneof
+    if payload-oneof-case_ == PAYLOAD-RESP-SCAN-RESULT:
+      payload_.serialize w --as-field=PAYLOAD-RESP-SCAN-RESULT --oneof
 
-  num_fields_set -> int:
-    return (payload_oneof_case_ == null ? 0 : 1)
+  num-fields-set -> int:
+    return (payload-oneof-case_ == null ? 0 : 1)
       + (msg == 0 ? 0 : 1)
       + (status == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=2)
-      + (payload_oneof_case_ == PAYLOAD_CMD_SCAN_START ? (_protobuf.size_embedded_message (payload_cmd_scan_start.protobuf_size) --as_field=10) : 0)
-      + (payload_oneof_case_ == PAYLOAD_RESP_SCAN_START ? (_protobuf.size_embedded_message (payload_resp_scan_start.protobuf_size) --as_field=11) : 0)
-      + (payload_oneof_case_ == PAYLOAD_CMD_SCAN_STATUS ? (_protobuf.size_embedded_message (payload_cmd_scan_status.protobuf_size) --as_field=12) : 0)
-      + (payload_oneof_case_ == PAYLOAD_RESP_SCAN_STATUS ? (_protobuf.size_embedded_message (payload_resp_scan_status.protobuf_size) --as_field=13) : 0)
-      + (payload_oneof_case_ == PAYLOAD_CMD_SCAN_RESULT ? (_protobuf.size_embedded_message (payload_cmd_scan_result.protobuf_size) --as_field=14) : 0)
-      + (payload_oneof_case_ == PAYLOAD_RESP_SCAN_RESULT ? (_protobuf.size_embedded_message (payload_resp_scan_result.protobuf_size) --as_field=15) : 0)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=2)
+      + (payload-oneof-case_ == PAYLOAD-CMD-SCAN-START ? (_protobuf.size-embedded-message (payload-cmd-scan-start.protobuf-size) --as-field=10) : 0)
+      + (payload-oneof-case_ == PAYLOAD-RESP-SCAN-START ? (_protobuf.size-embedded-message (payload-resp-scan-start.protobuf-size) --as-field=11) : 0)
+      + (payload-oneof-case_ == PAYLOAD-CMD-SCAN-STATUS ? (_protobuf.size-embedded-message (payload-cmd-scan-status.protobuf-size) --as-field=12) : 0)
+      + (payload-oneof-case_ == PAYLOAD-RESP-SCAN-STATUS ? (_protobuf.size-embedded-message (payload-resp-scan-status.protobuf-size) --as-field=13) : 0)
+      + (payload-oneof-case_ == PAYLOAD-CMD-SCAN-RESULT ? (_protobuf.size-embedded-message (payload-cmd-scan-result.protobuf-size) --as-field=14) : 0)
+      + (payload-oneof-case_ == PAYLOAD-RESP-SCAN-RESULT ? (_protobuf.size-embedded-message (payload-resp-scan-result.protobuf-size) --as-field=15) : 0)
 
 // MESSAGE END: .WiFiScanPayload
 

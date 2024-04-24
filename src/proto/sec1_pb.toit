@@ -3,143 +3,143 @@
 
 import protobuf as _protobuf
 import core as _core
-import .constants_pb as _constants
+import .constants-pb as _constants
 
 // ENUM START: Sec1MsgType
-Sec1MsgType_Session_Command0/int/*enum<Sec1MsgType>*/ ::= 0
-Sec1MsgType_Session_Response0/int/*enum<Sec1MsgType>*/ ::= 1
-Sec1MsgType_Session_Command1/int/*enum<Sec1MsgType>*/ ::= 2
-Sec1MsgType_Session_Response1/int/*enum<Sec1MsgType>*/ ::= 3
+Sec1MsgType-Session-Command0/int/*enum<Sec1MsgType>*/ ::= 0
+Sec1MsgType-Session-Response0/int/*enum<Sec1MsgType>*/ ::= 1
+Sec1MsgType-Session-Command1/int/*enum<Sec1MsgType>*/ ::= 2
+Sec1MsgType-Session-Response1/int/*enum<Sec1MsgType>*/ ::= 3
 // ENUM END: .Sec1MsgType
 
 // MESSAGE START: .SessionCmd1
 class SessionCmd1 extends _protobuf.Message:
-  client_verify_data/ByteArray := ByteArray 0
+  client-verify-data/ByteArray := ByteArray 0
 
   constructor
-      --client_verify_data/ByteArray?=null:
-    if client_verify_data != null:
-      this.client_verify_data = client_verify_data
+      --client-verify-data/ByteArray?=null:
+    if client-verify-data != null:
+      this.client-verify-data = client-verify-data
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 2:
-        client_verify_data = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
+    r.read-message:
+      r.read-field 2:
+        client-verify-data = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES client_verify_data --as_field=2
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES client-verify-data --as-field=2
 
-  num_fields_set -> int:
-    return (client_verify_data.is_empty ? 0 : 1)
+  num-fields-set -> int:
+    return (client-verify-data.is-empty ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES client_verify_data --as_field=2)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES client-verify-data --as-field=2)
 
 // MESSAGE END: .SessionCmd1
 
 // MESSAGE START: .SessionResp1
 class SessionResp1 extends _protobuf.Message:
   status/int/*enum<_constants.Status>*/ := 0
-  device_verify_data/ByteArray := ByteArray 0
+  device-verify-data/ByteArray := ByteArray 0
 
   constructor
       --status/int?/*enum<_constants.Status>?*/=null
-      --device_verify_data/ByteArray?=null:
+      --device-verify-data/ByteArray?=null:
     if status != null:
       this.status = status
-    if device_verify_data != null:
-      this.device_verify_data = device_verify_data
+    if device-verify-data != null:
+      this.device-verify-data = device-verify-data
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        status = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 3:
-        device_verify_data = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
+    r.read-message:
+      r.read-field 1:
+        status = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 3:
+        device-verify-data = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES device_verify_data --as_field=3
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES device-verify-data --as-field=3
 
-  num_fields_set -> int:
+  num-fields-set -> int:
     return (status == 0 ? 0 : 1)
-      + (device_verify_data.is_empty ? 0 : 1)
+      + (device-verify-data.is-empty ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES device_verify_data --as_field=3)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES device-verify-data --as-field=3)
 
 // MESSAGE END: .SessionResp1
 
 // MESSAGE START: .SessionCmd0
 class SessionCmd0 extends _protobuf.Message:
-  client_pubkey/ByteArray := ByteArray 0
+  client-pubkey/ByteArray := ByteArray 0
 
   constructor
-      --client_pubkey/ByteArray?=null:
-    if client_pubkey != null:
-      this.client_pubkey = client_pubkey
+      --client-pubkey/ByteArray?=null:
+    if client-pubkey != null:
+      this.client-pubkey = client-pubkey
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        client_pubkey = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
+    r.read-message:
+      r.read-field 1:
+        client-pubkey = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES client_pubkey --as_field=1
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES client-pubkey --as-field=1
 
-  num_fields_set -> int:
-    return (client_pubkey.is_empty ? 0 : 1)
+  num-fields-set -> int:
+    return (client-pubkey.is-empty ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES client_pubkey --as_field=1)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES client-pubkey --as-field=1)
 
 // MESSAGE END: .SessionCmd0
 
 // MESSAGE START: .SessionResp0
 class SessionResp0 extends _protobuf.Message:
   status/int/*enum<_constants.Status>*/ := 0
-  device_pubkey/ByteArray := ByteArray 0
-  device_random/ByteArray := ByteArray 0
+  device-pubkey/ByteArray := ByteArray 0
+  device-random/ByteArray := ByteArray 0
 
   constructor
       --status/int?/*enum<_constants.Status>?*/=null
-      --device_pubkey/ByteArray?=null
-      --device_random/ByteArray?=null:
+      --device-pubkey/ByteArray?=null
+      --device-random/ByteArray?=null:
     if status != null:
       this.status = status
-    if device_pubkey != null:
-      this.device_pubkey = device_pubkey
-    if device_random != null:
-      this.device_random = device_random
+    if device-pubkey != null:
+      this.device-pubkey = device-pubkey
+    if device-random != null:
+      this.device-random = device-random
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        status = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 2:
-        device_pubkey = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 3:
-        device_random = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
+    r.read-message:
+      r.read-field 1:
+        status = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 2:
+        device-pubkey = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 3:
+        device-random = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES device_pubkey --as_field=2
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES device_random --as_field=3
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES device-pubkey --as-field=2
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES device-random --as-field=3
 
-  num_fields_set -> int:
+  num-fields-set -> int:
     return (status == 0 ? 0 : 1)
-      + (device_pubkey.is_empty ? 0 : 1)
-      + (device_random.is_empty ? 0 : 1)
+      + (device-pubkey.is-empty ? 0 : 1)
+      + (device-random.is-empty ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM status --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES device_pubkey --as_field=2)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES device_random --as_field=3)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM status --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES device-pubkey --as-field=2)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES device-random --as-field=3)
 
 // MESSAGE END: .SessionResp0
 
@@ -147,103 +147,103 @@ class SessionResp0 extends _protobuf.Message:
 class Sec1Payload extends _protobuf.Message:
   // ONEOF START: .Sec1Payload.payload
   payload_ := null
-  payload_oneof_case_/int? := null
+  payload-oneof-case_/int? := null
 
-  payload_oneof_clear -> none:
+  payload-oneof-clear -> none:
     payload_ = null
-    payload_oneof_case_ = null
+    payload-oneof-case_ = null
 
-  static PAYLOAD_SC0/int ::= 20
-  static PAYLOAD_SR0/int ::= 21
-  static PAYLOAD_SC1/int ::= 22
-  static PAYLOAD_SR1/int ::= 23
+  static PAYLOAD-SC0/int ::= 20
+  static PAYLOAD-SR0/int ::= 21
+  static PAYLOAD-SC1/int ::= 22
+  static PAYLOAD-SR1/int ::= 23
 
-  payload_oneof_case -> int?:
-    return payload_oneof_case_
+  payload-oneof-case -> int?:
+    return payload-oneof-case_
 
-  payload_sc0 -> SessionCmd0:
+  payload-sc0 -> SessionCmd0:
     return payload_
 
-  payload_sc0= payload/SessionCmd0 -> none:
+  payload-sc0= payload/SessionCmd0 -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_SC0
+    payload-oneof-case_ = PAYLOAD-SC0
 
-  payload_sr0 -> SessionResp0:
+  payload-sr0 -> SessionResp0:
     return payload_
 
-  payload_sr0= payload/SessionResp0 -> none:
+  payload-sr0= payload/SessionResp0 -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_SR0
+    payload-oneof-case_ = PAYLOAD-SR0
 
-  payload_sc1 -> SessionCmd1:
+  payload-sc1 -> SessionCmd1:
     return payload_
 
-  payload_sc1= payload/SessionCmd1 -> none:
+  payload-sc1= payload/SessionCmd1 -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_SC1
+    payload-oneof-case_ = PAYLOAD-SC1
 
-  payload_sr1 -> SessionResp1:
+  payload-sr1 -> SessionResp1:
     return payload_
 
-  payload_sr1= payload/SessionResp1 -> none:
+  payload-sr1= payload/SessionResp1 -> none:
     payload_ = payload
-    payload_oneof_case_ = PAYLOAD_SR1
+    payload-oneof-case_ = PAYLOAD-SR1
 
   // ONEOF END: .Sec1Payload.payload
   msg/int/*enum<Sec1MsgType>*/ := 0
 
   constructor
       --msg/int?/*enum<Sec1MsgType>?*/=null
-      --payload_sc0/SessionCmd0?=null
-      --payload_sr0/SessionResp0?=null
-      --payload_sc1/SessionCmd1?=null
-      --payload_sr1/SessionResp1?=null:
+      --payload-sc0/SessionCmd0?=null
+      --payload-sr0/SessionResp0?=null
+      --payload-sc1/SessionCmd1?=null
+      --payload-sr1/SessionResp1?=null:
     if msg != null:
       this.msg = msg
-    if payload_sc0 != null:
-      this.payload_sc0 = payload_sc0
-    if payload_sr0 != null:
-      this.payload_sr0 = payload_sr0
-    if payload_sc1 != null:
-      this.payload_sc1 = payload_sc1
-    if payload_sr1 != null:
-      this.payload_sr1 = payload_sr1
+    if payload-sc0 != null:
+      this.payload-sc0 = payload-sc0
+    if payload-sr0 != null:
+      this.payload-sr0 = payload-sr0
+    if payload-sc1 != null:
+      this.payload-sc1 = payload-sc1
+    if payload-sr1 != null:
+      this.payload-sr1 = payload-sr1
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        msg = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 20:
-        payload_sc0 = SessionCmd0.deserialize r
-      r.read_field 21:
-        payload_sr0 = SessionResp0.deserialize r
-      r.read_field 22:
-        payload_sc1 = SessionCmd1.deserialize r
-      r.read_field 23:
-        payload_sr1 = SessionResp1.deserialize r
+    r.read-message:
+      r.read-field 1:
+        msg = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 20:
+        payload-sc0 = SessionCmd0.deserialize r
+      r.read-field 21:
+        payload-sr0 = SessionResp0.deserialize r
+      r.read-field 22:
+        payload-sc1 = SessionCmd1.deserialize r
+      r.read-field 23:
+        payload-sr1 = SessionResp1.deserialize r
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1
-    if payload_oneof_case_ == PAYLOAD_SC0:
-      payload_.serialize w --as_field=PAYLOAD_SC0 --oneof
-    if payload_oneof_case_ == PAYLOAD_SR0:
-      payload_.serialize w --as_field=PAYLOAD_SR0 --oneof
-    if payload_oneof_case_ == PAYLOAD_SC1:
-      payload_.serialize w --as_field=PAYLOAD_SC1 --oneof
-    if payload_oneof_case_ == PAYLOAD_SR1:
-      payload_.serialize w --as_field=PAYLOAD_SR1 --oneof
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1
+    if payload-oneof-case_ == PAYLOAD-SC0:
+      payload_.serialize w --as-field=PAYLOAD-SC0 --oneof
+    if payload-oneof-case_ == PAYLOAD-SR0:
+      payload_.serialize w --as-field=PAYLOAD-SR0 --oneof
+    if payload-oneof-case_ == PAYLOAD-SC1:
+      payload_.serialize w --as-field=PAYLOAD-SC1 --oneof
+    if payload-oneof-case_ == PAYLOAD-SR1:
+      payload_.serialize w --as-field=PAYLOAD-SR1 --oneof
 
-  num_fields_set -> int:
-    return (payload_oneof_case_ == null ? 0 : 1)
+  num-fields-set -> int:
+    return (payload-oneof-case_ == null ? 0 : 1)
       + (msg == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM msg --as_field=1)
-      + (payload_oneof_case_ == PAYLOAD_SC0 ? (_protobuf.size_embedded_message (payload_sc0.protobuf_size) --as_field=20) : 0)
-      + (payload_oneof_case_ == PAYLOAD_SR0 ? (_protobuf.size_embedded_message (payload_sr0.protobuf_size) --as_field=21) : 0)
-      + (payload_oneof_case_ == PAYLOAD_SC1 ? (_protobuf.size_embedded_message (payload_sc1.protobuf_size) --as_field=22) : 0)
-      + (payload_oneof_case_ == PAYLOAD_SR1 ? (_protobuf.size_embedded_message (payload_sr1.protobuf_size) --as_field=23) : 0)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM msg --as-field=1)
+      + (payload-oneof-case_ == PAYLOAD-SC0 ? (_protobuf.size-embedded-message (payload-sc0.protobuf-size) --as-field=20) : 0)
+      + (payload-oneof-case_ == PAYLOAD-SR0 ? (_protobuf.size-embedded-message (payload-sr0.protobuf-size) --as-field=21) : 0)
+      + (payload-oneof-case_ == PAYLOAD-SC1 ? (_protobuf.size-embedded-message (payload-sc1.protobuf-size) --as-field=22) : 0)
+      + (payload-oneof-case_ == PAYLOAD-SR1 ? (_protobuf.size-embedded-message (payload-sr1.protobuf-size) --as-field=23) : 0)
 
 // MESSAGE END: .Sec1Payload
 

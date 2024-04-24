@@ -5,46 +5,46 @@ import protobuf as _protobuf
 import core as _core
 
 // ENUM START: WifiStationState
-WifiStationState_Connected/int/*enum<WifiStationState>*/ ::= 0
-WifiStationState_Connecting/int/*enum<WifiStationState>*/ ::= 1
-WifiStationState_Disconnected/int/*enum<WifiStationState>*/ ::= 2
-WifiStationState_ConnectionFailed/int/*enum<WifiStationState>*/ ::= 3
+WifiStationState-Connected/int/*enum<WifiStationState>*/ ::= 0
+WifiStationState-Connecting/int/*enum<WifiStationState>*/ ::= 1
+WifiStationState-Disconnected/int/*enum<WifiStationState>*/ ::= 2
+WifiStationState-ConnectionFailed/int/*enum<WifiStationState>*/ ::= 3
 // ENUM END: .WifiStationState
 
 // ENUM START: WifiConnectFailedReason
-WifiConnectFailedReason_AuthError/int/*enum<WifiConnectFailedReason>*/ ::= 0
-WifiConnectFailedReason_NetworkNotFound/int/*enum<WifiConnectFailedReason>*/ ::= 1
+WifiConnectFailedReason-AuthError/int/*enum<WifiConnectFailedReason>*/ ::= 0
+WifiConnectFailedReason-NetworkNotFound/int/*enum<WifiConnectFailedReason>*/ ::= 1
 // ENUM END: .WifiConnectFailedReason
 
 // ENUM START: WifiAuthMode
-WifiAuthMode_Open/int/*enum<WifiAuthMode>*/ ::= 0
-WifiAuthMode_WEP/int/*enum<WifiAuthMode>*/ ::= 1
-WifiAuthMode_WPA_PSK/int/*enum<WifiAuthMode>*/ ::= 2
-WifiAuthMode_WPA2_PSK/int/*enum<WifiAuthMode>*/ ::= 3
-WifiAuthMode_WPA_WPA2_PSK/int/*enum<WifiAuthMode>*/ ::= 4
-WifiAuthMode_WPA2_ENTERPRISE/int/*enum<WifiAuthMode>*/ ::= 5
-WifiAuthMode_WPA3_PSK/int/*enum<WifiAuthMode>*/ ::= 6
-WifiAuthMode_WPA2_WPA3_PSK/int/*enum<WifiAuthMode>*/ ::= 7
+WifiAuthMode-Open/int/*enum<WifiAuthMode>*/ ::= 0
+WifiAuthMode-WEP/int/*enum<WifiAuthMode>*/ ::= 1
+WifiAuthMode-WPA-PSK/int/*enum<WifiAuthMode>*/ ::= 2
+WifiAuthMode-WPA2-PSK/int/*enum<WifiAuthMode>*/ ::= 3
+WifiAuthMode-WPA-WPA2-PSK/int/*enum<WifiAuthMode>*/ ::= 4
+WifiAuthMode-WPA2-ENTERPRISE/int/*enum<WifiAuthMode>*/ ::= 5
+WifiAuthMode-WPA3-PSK/int/*enum<WifiAuthMode>*/ ::= 6
+WifiAuthMode-WPA2-WPA3-PSK/int/*enum<WifiAuthMode>*/ ::= 7
 // ENUM END: .WifiAuthMode
 
 // MESSAGE START: .WifiConnectedState
 class WifiConnectedState extends _protobuf.Message:
-  ip4_addr/string := ""
-  auth_mode/int/*enum<WifiAuthMode>*/ := 0
+  ip4-addr/string := ""
+  auth-mode/int/*enum<WifiAuthMode>*/ := 0
   ssid/ByteArray := ByteArray 0
   bssid/ByteArray := ByteArray 0
   channel/int := 0
 
   constructor
-      --ip4_addr/string?=null
-      --auth_mode/int?/*enum<WifiAuthMode>?*/=null
+      --ip4-addr/string?=null
+      --auth-mode/int?/*enum<WifiAuthMode>?*/=null
       --ssid/ByteArray?=null
       --bssid/ByteArray?=null
       --channel/int?=null:
-    if ip4_addr != null:
-      this.ip4_addr = ip4_addr
-    if auth_mode != null:
-      this.auth_mode = auth_mode
+    if ip4-addr != null:
+      this.ip4-addr = ip4-addr
+    if auth-mode != null:
+      this.auth-mode = auth-mode
     if ssid != null:
       this.ssid = ssid
     if bssid != null:
@@ -53,39 +53,39 @@ class WifiConnectedState extends _protobuf.Message:
       this.channel = channel
 
   constructor.deserialize r/_protobuf.Reader:
-    r.read_message:
-      r.read_field 1:
-        ip4_addr = r.read_primitive _protobuf.PROTOBUF_TYPE_STRING
-      r.read_field 2:
-        auth_mode = r.read_primitive _protobuf.PROTOBUF_TYPE_ENUM
-      r.read_field 3:
-        ssid = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 4:
-        bssid = r.read_primitive _protobuf.PROTOBUF_TYPE_BYTES
-      r.read_field 5:
-        channel = r.read_primitive _protobuf.PROTOBUF_TYPE_INT32
+    r.read-message:
+      r.read-field 1:
+        ip4-addr = r.read-primitive _protobuf.PROTOBUF-TYPE-STRING
+      r.read-field 2:
+        auth-mode = r.read-primitive _protobuf.PROTOBUF-TYPE-ENUM
+      r.read-field 3:
+        ssid = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 4:
+        bssid = r.read-primitive _protobuf.PROTOBUF-TYPE-BYTES
+      r.read-field 5:
+        channel = r.read-primitive _protobuf.PROTOBUF-TYPE-INT32
 
-  serialize w/_protobuf.Writer --as_field/int?=null --oneof/bool=false -> none:
-    w.write_message_header this --as_field=as_field --oneof=oneof
-    w.write_primitive _protobuf.PROTOBUF_TYPE_STRING ip4_addr --as_field=1
-    w.write_primitive _protobuf.PROTOBUF_TYPE_ENUM auth_mode --as_field=2
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES ssid --as_field=3
-    w.write_primitive _protobuf.PROTOBUF_TYPE_BYTES bssid --as_field=4
-    w.write_primitive _protobuf.PROTOBUF_TYPE_INT32 channel --as_field=5
+  serialize w/_protobuf.Writer --as-field/int?=null --oneof/bool=false -> none:
+    w.write-message-header this --as-field=as-field --oneof=oneof
+    w.write-primitive _protobuf.PROTOBUF-TYPE-STRING ip4-addr --as-field=1
+    w.write-primitive _protobuf.PROTOBUF-TYPE-ENUM auth-mode --as-field=2
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES ssid --as-field=3
+    w.write-primitive _protobuf.PROTOBUF-TYPE-BYTES bssid --as-field=4
+    w.write-primitive _protobuf.PROTOBUF-TYPE-INT32 channel --as-field=5
 
-  num_fields_set -> int:
-    return (ip4_addr.is_empty ? 0 : 1)
-      + (auth_mode == 0 ? 0 : 1)
-      + (ssid.is_empty ? 0 : 1)
-      + (bssid.is_empty ? 0 : 1)
+  num-fields-set -> int:
+    return (ip4-addr.is-empty ? 0 : 1)
+      + (auth-mode == 0 ? 0 : 1)
+      + (ssid.is-empty ? 0 : 1)
+      + (bssid.is-empty ? 0 : 1)
       + (channel == 0 ? 0 : 1)
 
-  protobuf_size -> int:
-    return (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_STRING ip4_addr --as_field=1)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_ENUM auth_mode --as_field=2)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES ssid --as_field=3)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_BYTES bssid --as_field=4)
-      + (_protobuf.size_primitive _protobuf.PROTOBUF_TYPE_INT32 channel --as_field=5)
+  protobuf-size -> int:
+    return (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-STRING ip4-addr --as-field=1)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-ENUM auth-mode --as-field=2)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES ssid --as-field=3)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-BYTES bssid --as-field=4)
+      + (_protobuf.size-primitive _protobuf.PROTOBUF-TYPE-INT32 channel --as-field=5)
 
 // MESSAGE END: .WifiConnectedState
 

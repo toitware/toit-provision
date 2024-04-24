@@ -14,7 +14,7 @@ import bignum show *
 import crypto.sha show *
 
 class SRP:
-  static N_3072 ::= #[0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
+  static N-3072 ::= #[0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
                       0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1, 0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
                       0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22, 0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
                       0xEF, 0x95, 0x19, 0xB3, 0xCD, 0x3A, 0x43, 0x1B, 0x30, 0x2B, 0x0A, 0x6D, 0xF2, 0x5F, 0x14, 0x37,
@@ -38,9 +38,9 @@ class SRP:
                       0xBB, 0xE1, 0x17, 0x57, 0x7A, 0x61, 0x5D, 0x6C, 0x77, 0x09, 0x88, 0xC0, 0xBA, 0xD9, 0x46, 0xE2,
                       0x08, 0xE2, 0x4F, 0xA0, 0x74, 0xE5, 0xAB, 0x31, 0x43, 0xDB, 0x5B, 0xFC, 0xE0, 0xFD, 0x10, 0x8E,
                       0x4B, 0x82, 0xD1, 0x20, 0xA9, 0x3A, 0xD2, 0xCA, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-  static G_3072 ::= #[5]
-  static n_::= Bignum.with_bytes false N_3072
-  static g_::= Bignum.with_bytes false G_3072
+  static G-3072 ::= #[5]
+  static n_::= Bignum.with-bytes false N-3072
+  static g_::= Bignum.with-bytes false G-3072
 
   s_/Bignum
   v_/Bignum
@@ -48,88 +48,88 @@ class SRP:
   b_/Bignum
 
   A_/Bignum? := null 
-  session_key_/ByteArray := #[]
+  session-key_/ByteArray := #[]
 
-  constructor.with_random salt/ByteArray verifier/ByteArray random_data/ByteArray:
-    if random_data.size != 32:
+  constructor.with-random salt/ByteArray verifier/ByteArray random-data/ByteArray:
+    if random-data.size != 32:
       throw "Random size must be 32 bytes"
 
-    s_ = Bignum.with_bytes false salt
-    v_ = Bignum.with_bytes false verifier
-    b_ = Bignum.with_bytes false random_data
+    s_ = Bignum.with-bytes false salt
+    v_ = Bignum.with-bytes false verifier
+    b_ = Bignum.with-bytes false random-data
 
-    k := gen_padded_hash_ N_3072 G_3072
+    k := gen-padded-hash_ N-3072 G-3072
 
     kv := (k * v_) % n_
-    gb := mod_exp g_ b_ n_
+    gb := mod-exp g_ b_ n_
     B_  = (kv + gb) % n_
   
   constructor salt/ByteArray verifier/ByteArray:
-    random_data := ByteArray 32: random
-    return SRP.with_random salt verifier random_data
+    random-data := ByteArray 32: random
+    return SRP.with-random salt verifier random-data
 
-  static gen_padded_hash_ a/ByteArray b/ByteArray -> Bignum:
-    n := N_3072.size
-    pad_size := a.size > b.size ? n - b.size : n - a.size
-    pad := pad_size > 0 ? ByteArray pad_size: null
+  static gen-padded-hash_ a/ByteArray b/ByteArray -> Bignum:
+    n := N-3072.size
+    pad-size := a.size > b.size ? n - b.size : n - a.size
+    pad := pad-size > 0 ? ByteArray pad-size: null
     
-    digest_sha := Sha512
+    digest-sha := Sha512
     if pad and a.size != n:
-      digest_sha.add pad 0 (n - a.size)
-    digest_sha.add a
+      digest-sha.add pad 0 (n - a.size)
+    digest-sha.add a
 
     if pad and b.size != n:
-      digest_sha.add pad 0 (n - b.size)
-    digest_sha.add b
+      digest-sha.add pad 0 (n - b.size)
+    digest-sha.add b
 
-    return Bignum.with_bytes false digest_sha.get
+    return Bignum.with-bytes false digest-sha.get
 
-  gen_service_public_key -> ByteArray:
+  gen-service-public-key -> ByteArray:
     return B_.limbs_
 
-  get_session_key public_key/ByteArray -> ByteArray:
-    A_ = Bignum.with_bytes false public_key
-    u := gen_padded_hash_ public_key B_.limbs_
+  get-session-key public-key/ByteArray -> ByteArray:
+    A_ = Bignum.with-bytes false public-key
+    u := gen-padded-hash_ public-key B_.limbs_
 
-    vu := mod_exp v_ u n_
+    vu := mod-exp v_ u n_
     avu := (A_ * vu) % n_
-    S := mod_exp avu b_ n_
-    session_key_ = sha512 S.limbs_
+    S := mod-exp avu b_ n_
+    session-key_ = sha512 S.limbs_
 
-    return session_key_
+    return session-key_
 
-  exchange_proofs user_name/ByteArray user_proof/ByteArray -> ByteArray:
-    SHA512_SIZE := 64
-    user_name_hash := sha512 user_name
-    n_hash := sha512 N_3072
+  exchange-proofs user-name/ByteArray user-proof/ByteArray -> ByteArray:
+    SHA512-SIZE := 64
+    user-name-hash := sha512 user-name
+    n-hash := sha512 N-3072
 
-    pad_len := N_3072.size - G_3072.size
-    pad := ByteArray pad_len
+    pad-len := N-3072.size - G-3072.size
+    pad := ByteArray pad-len
 
-    g_sha := Sha512
-    g_sha.add pad
-    g_sha.add G_3072
-    g_hash := g_sha.get
+    g-sha := Sha512
+    g-sha.add pad
+    g-sha.add G-3072
+    g-hash := g-sha.get
 
-    bash_n_xor_g := ByteArray SHA512_SIZE
-    SHA512_SIZE.repeat:
-      bash_n_xor_g[it] = n_hash[it] ^ g_hash[it]
+    bash-n-xor-g := ByteArray SHA512-SIZE
+    SHA512-SIZE.repeat:
+      bash-n-xor-g[it] = n-hash[it] ^ g-hash[it]
 
-    cal_user_proof_sha := Sha512
-    cal_user_proof_sha.add bash_n_xor_g
-    cal_user_proof_sha.add user_name_hash
-    cal_user_proof_sha.add s_.limbs_
-    cal_user_proof_sha.add A_.limbs_
-    cal_user_proof_sha.add B_.limbs_
-    cal_user_proof_sha.add session_key_
-    cal_user_proof := cal_user_proof_sha.get
-    if cal_user_proof != user_proof:
+    cal-user-proof-sha := Sha512
+    cal-user-proof-sha.add bash-n-xor-g
+    cal-user-proof-sha.add user-name-hash
+    cal-user-proof-sha.add s_.limbs_
+    cal-user-proof-sha.add A_.limbs_
+    cal-user-proof-sha.add B_.limbs_
+    cal-user-proof-sha.add session-key_
+    cal-user-proof := cal-user-proof-sha.get
+    if cal-user-proof != user-proof:
       throw "user_proof is not right"
 
-    host_proof_sha := Sha512
-    host_proof_sha.add A_.limbs_
-    host_proof_sha.add user_proof
-    host_proof_sha.add session_key_
-    host_proof := host_proof_sha.get
+    host-proof-sha := Sha512
+    host-proof-sha.add A_.limbs_
+    host-proof-sha.add user-proof
+    host-proof-sha.add session-key_
+    host-proof := host-proof-sha.get
 
-    return host_proof
+    return host-proof
