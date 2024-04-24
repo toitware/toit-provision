@@ -86,8 +86,10 @@ class BLEService_:
   uuid/ByteArray
   name/string
 
-  characteristics/Map
-  peripheral/ble.Peripheral
+  characteristics/Map? := ?
+  service/ble.LocalService? := ?
+  peripheral/ble.Peripheral? := ?
+  adapter/ble.Adapter? := ?
 
   static CHARACTERISTICS ::= [
     {"name":"prov-scan",    "id":0x50, "encrypted":true},
@@ -98,9 +100,9 @@ class BLEService_:
   ]
 
   constructor .uuid/ByteArray .name/string:
-    adapter := ble.Adapter
+    adapter = ble.Adapter
     peripheral = adapter.peripheral
-    service := peripheral.add_service
+    service = peripheral.add_service
         ble.BleUuid uuid
 
     characteristics = Map
@@ -113,7 +115,7 @@ class BLEService_:
               it["name"]
               it["encrypted"]
 
-    service.deploy
+    peripheral.deploy
 
   start:
     peripheral.start_advertise
@@ -129,8 +131,19 @@ class BLEService_:
     return characteristics[name]
 
   close:
-    characteristics.do: | _ value |
-      value.close
+    if characteristics:
+      characteristics.do: | _ value |
+        value.close
+      characteristics = null
+    if service:
+      service.close
+      service = null
+    if peripheral:
+      peripheral.close
+      peripheral = null
+    if adapter:
+      adapter.close
+      adapter = null
 
 interface Security:
   encrypt data/ByteArray -> ByteArray
