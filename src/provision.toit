@@ -135,9 +135,6 @@ class BLEService_:
       characteristics.do: | _ value |
         value.close
       characteristics = null
-    if service:
-      service.close
-      service = null
     if peripheral:
       peripheral.close
       peripheral = null
