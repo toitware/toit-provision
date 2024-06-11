@@ -38,9 +38,9 @@ class BLECharacteristic_:
         --read-timeout-ms=READ-TIMEOUT-MS
     characteristic.add-descriptor
         DESC-UUID
-        PROPERTIES
-        PERMISSIONS
-        desc.to-byte-array
+        --properties=PROPERTIES
+        --permissions=PERMISSIONS
+        --value=desc.to-byte-array
 
     recv-task = task:: recv-task-run
 
