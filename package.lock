@@ -1,4 +1,4 @@
-sdk: ^2.0.0-alpha.144
+sdk: ^2.0.0-alpha.154
 prefixes:
   protobuf: toit-protobuf
 packages:
