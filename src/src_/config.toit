@@ -30,6 +30,7 @@ class ConfigProcess_ implements Process_:
       network = wifi.open
           --ssid=ssid
           --password=password
+          --save
 
       resp-msg = WiFiConfigPayload
           --msg=WiFiConfigMsgType-TypeRespApplyConfig
