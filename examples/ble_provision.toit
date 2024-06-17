@@ -5,6 +5,7 @@
 // The standard BLE provision demo for configuring Wi-Fi AP SSID and password
 
 import encoding.hex
+import esp32
 import provision
 
 /**
@@ -71,21 +72,19 @@ USER-NAME ::= "wifiprov"
 USER-KEY ::= "abcd1234"
 
 main:
-  id := provision.get-mac-address[3..]
+  id := esp32.mac-address[3..]
   service-name := "PROV_" + (hex.encode id)
 
-  security := provision.security2
+  credentials := provision.SecurityCredentials
       --salt=SEC2-SALT
       --verifier=SEC2-VERIFIER
 
-  prov := provision.Provision.ble
-      service-name
-      security
+  prov := provision.Provision service-name --security-credentials=credentials
 
   prov.start
 
   note ::= """
-      Open the following URL in a browser:
+      For a QR code open the following URL in a browser:
 
       https://espressif.github.io/esp-jumpstart/qrcode.html?data=\
       {"ver":"v1","name":"$(service-name)","transport":"ble","username":$USER-NAME,"pop":$USER-KEY}"""
