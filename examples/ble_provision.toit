@@ -84,7 +84,7 @@ main:
   prov.start
 
   note ::= """
-      For a QR code open the following URL in a browser:
+      For a QR code, open the following URL in a browser:
 
       https://espressif.github.io/esp-jumpstart/qrcode.html?data=\
       {"ver":"v1","name":"$(service-name)","transport":"ble","username":$USER-NAME,"pop":$USER-KEY}"""
