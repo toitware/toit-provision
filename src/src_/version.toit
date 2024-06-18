@@ -1,19 +1,41 @@
+// Copyright (C) 2024 Toitware ApS.
+// Use of this source code is governed by an MIT-style license that can be
+// found in the package's LICENSE file.
+
+import ble
 import encoding.json
-import .ble show Process_
 
-class VerProcess_ implements Process_:
-  static VERSION := "v1.1"
-  static BASE-CAPS := ["wifi_scan"]
+import .rpc
 
-  resp-msg/ByteArray
+/**
+An RPC service to expose the version of the protocol and the security version.
+*/
+class VersionRpcService extends RpcService:
+  static VERSION ::= "v1.1"
+  static BASE-CAPS ::= ["wifi_scan"]
 
-  constructor version/int:
-    caps := List BASE-CAPS.size: BASE-CAPS[it]
-    if version == 0:
+  static ID_ ::= 0x53
+  static DESCRIPTION_ ::= "proto-ver"
+
+  response-bytes/ByteArray
+
+  constructor service/ble.LocalService --security-version/int:
+    caps := BASE-CAPS
+    if security-version == 0:
+      caps = caps.copy
       caps.add "no_sec"
-    ver-map := {"prov":{"ver":VERSION, "sec_ver":version, "cap":caps}}
-    resp-msg = json.encode ver-map
 
-  run data/ByteArray -> ByteArray:
-    return resp-msg
+    response-bytes = json.encode {
+      "prov": {
+        "ver": VERSION,
+        "sec_ver": security-version,
+        "cap": caps
+      }
+    }
 
+    super service ID_
+        --description=DESCRIPTION_
+        --security=null
+
+  handle-request data/ByteArray -> ByteArray:
+    return response-bytes
