@@ -32,7 +32,10 @@ class BleProvision:
 
   The $name will be shown in the app when communicating with the device.
   */
-  constructor --.name --security-credentials/SecurityCredentials? --done/Lambda:
+  constructor --.name
+      --security-credentials/SecurityCredentials?
+      --done/Lambda
+      --auto-save/bool:
     adapter = ble.Adapter
     peripheral = adapter.peripheral
     service = peripheral.add-service (ble.BleUuid SERVICE-UUID)
@@ -41,7 +44,7 @@ class BleProvision:
     rpc-services_ = [
       ScanRpcService service --security=security,
       SessionRpcService service --security=security,
-      WifiConfigRpcService service --security=security --done=done,
+      WifiConfigRpcService service --security=security --done=done --auto-save=auto-save,
       VersionRpcService service --security-version=security.version,
     ]
 

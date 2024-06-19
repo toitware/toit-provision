@@ -75,7 +75,7 @@ main:
   id := esp32.mac-address[3..]
   service-name := "PROV_" + (hex.encode id)
 
-  credentials := provision.SecurityCredentials
+  credentials := provision.SecurityCredentials.scheme2
       --salt=SEC2-SALT
       --verifier=SEC2-VERIFIER
 
@@ -90,8 +90,6 @@ main:
       {"ver":"v1","name":"$(service-name)","transport":"ble","username":$USER-NAME,"pop":$USER-KEY}"""
   print note
 
-  successful := prov.wait
-  if successful:
-    print "Provisioning is successful."
-
+  wifi-credentials := prov.wait
+  print "Received Wi-Fi credentials: $wifi-credentials"
   prov.close

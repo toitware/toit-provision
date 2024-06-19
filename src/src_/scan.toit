@@ -21,20 +21,12 @@ class ScanRpcService extends ProtobufRpcService:
   static CHANNEL-NUM ::= 14
   static SCAN-AP-MAX ::= 16
 
-  /**
-  A list of access points that have been found so far.
-  */
+  /** A list of access points that have been found. */
   ap-list_/List := []
-  scan-task_/Task? := null
 
   constructor service/ble.LocalService --security/Security:
     super service ID_ --description=DESCRIPTION_ --security=security
     ap-list/List := []
-
-  close -> none:
-    critical-do:
-      stop-scanning_
-      super
 
   static compare-ap-by-rssi_ a/wifi.AccessPoint b/wifi.AccessPoint -> int:
     return -(a.rssi.compare-to b.rssi)
@@ -46,7 +38,11 @@ class ScanRpcService extends ProtobufRpcService:
       scan-start := scan-request.payload-cmd-scan-start
       period-per-channel-ms := scan-start.period-ms
 
-      start-scanning_ --period-per-channel-ms=period-per-channel-ms
+      channels := ByteArray CHANNEL-NUM: it + 1
+      ap-list_ = wifi.scan channels --period-per-channel-ms=period-per-channel-ms
+      ap-list_.sort --in-place: | a b | compare-ap-by-rssi_ a b
+      size := min ap-list_.size SCAN-AP-MAX
+      ap-list_.resize size
 
       return WiFiScanPayload
           --msg=WiFiScanMsgType-TypeRespScanStart
@@ -58,23 +54,20 @@ class ScanRpcService extends ProtobufRpcService:
           --msg=WiFiScanMsgType-TypeRespScanStart
           --status=Status-Success
           --payload-resp-scan-status=RespScanStatus
-              --scan-finished=(ap-list_.size > 0)
+              --scan-finished=true
               --result-count=ap-list_.size
 
     if scan-request.msg == WiFiScanMsgType-TypeCmdScanResult:
       arg := scan-request.payload-cmd-scan-result
       scan-ap := ap-list_[arg.start-index .. arg.start-index + arg.count]
 
-      stop-scanning_
-      ap-entries := []
-      scan-ap.do: |ap/wifi.AccessPoint|
-        ap-entries.add
-            WiFiScanResult
-              --ssid=ap.ssid.to-byte-array
-              --channel=ap.channel
-              --rssi=ap.rssi
-              --bssid=ap.bssid
-              --auth=ap.authmode
+      ap-entries := scan-ap.map: |ap/wifi.AccessPoint|
+        WiFiScanResult
+          --ssid=ap.ssid.to-byte-array
+          --channel=ap.channel
+          --rssi=ap.rssi
+          --bssid=ap.bssid
+          --auth=ap.authmode
 
       return WiFiScanPayload
           --msg=WiFiScanMsgType-TypeRespScanResult
@@ -85,16 +78,3 @@ class ScanRpcService extends ProtobufRpcService:
     else:
       throw "Scan message is not supported"
 
-  start-scanning_ --period-per-channel-ms/int -> none:
-    if scan-task_ == null:
-      scan-task_ = task::
-        channels := ByteArray CHANNEL-NUM: it + 1
-        ap-list_ = wifi.scan channels --period-per-channel-ms=period-per-channel-ms
-        ap-list_.sort --in-place: | a b | compare-ap-by-rssi_ a b
-        size := min ap-list_.size SCAN-AP-MAX
-        ap-list_.resize size
-
-  stop-scanning_ -> none:
-    if scan-task_ != null:
-      scan-task_.cancel
-      scan-task_ = null
