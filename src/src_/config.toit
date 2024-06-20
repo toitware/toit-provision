@@ -72,8 +72,8 @@ class WifiConfigRpcService extends ProtobufRpcService:
                 --save=auto-save_
             was-successful_ = true
           fail-reason_ = "$exception".contains "not found"
-            ? FAIL-REASON-NETWORK-NOT-FOUND_
-            : FAIL-REASON-AUTH-ERROR_
+              ? FAIL-REASON-NETWORK-NOT-FOUND_
+              : FAIL-REASON-AUTH-ERROR_
         finally:
           connecting-task_ = null
 
