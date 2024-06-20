@@ -18,7 +18,7 @@ class WifiCredentials:
   constructor --.ssid --.password:
 
   stringify -> string:
-    return "SSID: $ssid, Password: $password"
+    return "SSID: $ssid, password: $password"
 
 /**
 Used to provision the device with WiFi credentials using BLE.
