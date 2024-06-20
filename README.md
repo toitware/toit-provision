@@ -1,63 +1,67 @@
 # Toit Provision
 
-Provision ESP32 connect to designated Wi-Fi access point by PC or App of mobile phone.
+A Toit package to send WiFi credentials to ESP32 devices using BLE.
 
-## 1. Tool and App
+## Tool and App
 
-A device that uses this library can be provisioned either from a PC or with an APP.
+The sending program can be either a CLI tool or mobile app.
 
-### 1.1 Tool
+### Cli Tool
 
-It is recommended to use the BLE provisioning tool that comes with the esp-idf v5.0.1.
-Follow the following steps to obtain it:
+The esp-idf comes with a BLE provisioning tool written in Python. It is
+located in the `tools/esp_prov` directory.
 
-1. clone esp-idf
-
-```sh
-git clone --branch v5.0.1 --depth 1 https://github.com/espressif/esp-idf.git
+Install the esp-idf as follows:
 ```
-
-2. install tools
-
-```sh
+git clone --branch v5.0.1 --depth 1 https://github.com/espressif/esp-idf.git
 cd esp-idf
 ./install.sh
 . ./export.sh
 ```
 
-3. run script
-
-Please use your own device's service name instead of `$SERVICE_NAME`
+You might also need to install the `protobuf` package. You can install it with `pip`:
 
 ```
-python3 tools/esp_prov/esp_prov.py --transport ble --sec_ver 2 --service_name $SERVICE_NAME --sec2_username wifiprov --sec2_pwd abcd1234
+pip install protobuf
 ```
 
-### 1.2 App
+Then run the following script. Replace `$SERVICE_NAME` with the service name of the device.
 
-This package supports the secure mode 2 for BLE provisioning. As such,
-we recommend to use newer version of the Android app which supports secure mode 2.
-You can download the Android app from the official
-[Play store](https://play.google.com/store/apps/details?id=com.espressif.provble) or
-from the [Github release page](https://github.com/espressif/esp-idf-provisioning-android/releases/download/Provisioning_App_Release_2.1.0/ESP_BLE_Prov_2_1_0.apk).
+```
+python3 tools/esp_prov/esp_prov.py --transport ble \
+  --sec_ver 2 \
+  --sec2_username wifiprov --sec2_pwd abcd1234 \
+  --service_name $SERVICE_NAME
+```
 
-## 2. Example
+### Mobile Application
 
-The example `ble_provision.toit` shows how to integrate BLE provisioning on an
+Download the mobile application from the following links:
+* Android: [Play store](https://play.google.com/store/apps/details?id=com.espressif.provble)
+* IOS: [App store](https://apps.apple.com/us/app/esp-ble-provisioning/id1473590141)
+* [Github release page](https://github.com/espressif/esp-idf-provisioning-android/releases/).
+
+## Example
+
+The example `ble-provision.toit` shows how to integrate BLE provisioning on an
 ESP32 module so its WiFi can be configured by the PC or Android app.
 
-- This example uses security 2 mode, which uses SRPa6 to exchange session
-  key and AES-GCM to encrypt the session, you can use following command to generate
-  the `sec2_salt` and `sec2_verifier`:
+The example uses security 2 mode, which uses SRPa6 to exchange the session
+key and AES-GCM to encrypt the session. The default username is `wifiprov` and
+the default password is `abcd1234`. If you want to use different credentials,
+run the following command to generate the `sec2_salt` and `sec2_verifier` in the
+ESP-IDF directory:
 
-  ```sh
-  cd esp-idf
-  python tools/esp_prov/esp_prov.py --transport ble --sec_ver 2 --sec2_gen_cred --sec2_username wifiprov --sec2_pwd abcd1234
-  ```
-  You can also use your own `sec2_username` and `sec2_pwd`, as long as you provide these
-  credentials when provisioning (for example in step 3 above).
+```sh
+python tools/esp_prov/esp_prov.py --transport ble \
+    --sec_ver 2 --sec2_gen_cred \
+    --sec2_username wifiprov --sec2_pwd abcd1234 \
+```
+
+Your users will need these credentials to provision the device.
 
 ### Installing with Jaguar
+
 Installing with Jaguar is mainly for testing, as Jaguar is already set up with
 WiFi credentials.
 
@@ -79,11 +83,12 @@ Then install the example as a new container:
 ```sh
 jag container install -D jag.disabled -D jag.timeout=2m  provision ble_provision.toit
 ```
-When the device reboots it will automatically start the provisioning process.
 
 ### With the Toit SDK
+
 Download a Toit SDK from https://github.com/toitlang/toit/releases.
-You will need the `toit-PLATFORM.tar.gz` and a firmware envelope (`firmware-MODEL.gz`).
+You will need the `toit-PLATFORM.tar.gz` and a matching firmware
+envelope (`firmware-MODEL.gz`) from https://github.com/toitlang/envelopes.
 
 Unzip the SDK and add the `toit/bin` and `toit/tools` folder to your path.
 
@@ -96,15 +101,11 @@ All further commands should be executed in the `examples` folder.
 cd examples
 ```
 
-#### Install Dependencies
-
 Install the package dependencies in the `examples` folder:
 
 ```sh
 toit.pkg install
 ```
-
-#### Compile and Flash
 
 Compile the example. From the examples folder:
 

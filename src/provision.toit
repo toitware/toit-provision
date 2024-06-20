@@ -8,32 +8,75 @@ import .src_.security show SecurityCredentials
 
 export SecurityCredentials
 
+/**
+WiFi credentials.
+*/
+class WifiCredentials:
+  ssid/string
+  password/string
+
+  constructor --.ssid --.password:
+
+  stringify -> string:
+    return "SSID: $ssid, password: $password"
+
+/**
+Used to provision the device with WiFi credentials using BLE.
+*/
 class Provision:
-  ble_/BleProvision
+  ble_/BleProvision? := ?
   done-latch_/monitor.Latch
 
-  constructor service-name/string --security-credentials/SecurityCredentials?=null:
+  /**
+  Constructs a new provision object.
+
+  The $name is published as the device name in the BLE advertisement.
+
+  If $security-credentials is not provided, the device performs the provisioning
+    without any encryption. If provided, the device uses the provided security
+    credentials to encrypt the communication.
+
+  If $auto-save is true, then the device saves the WiFi credentials to the flash
+    memory after a successful provisioning.
+  */
+  constructor name/string
+      --security-credentials/SecurityCredentials?=null
+      --auto-save/bool=true:
     done-latch := monitor.Latch
     done-latch_ = done-latch
     ble_ = BleProvision
-        --name=service-name
+        --name=name
         --security-credentials=security-credentials
-        --done=:: done-latch.set true
+        --done=:: done-latch.set it
+        --auto-save=auto-save
 
+  /**
+  Starts the provisioning process.
+
+  The device advertises itself as a BLE peripheral and waits for a central device
+    to connect and send the WiFi credentials.
+
+  Use $wait to wait for the provisioning to finish.
+  */
   start -> none:
-    if done-latch_.has-value: throw "CLOSED"
+    if not ble_: throw "CLOSED"
+    if done-latch_.has-value: throw "DONE"
     ble_.start
 
-  wait -> bool:
-    done-latch_.get
+  /**
+  Returns the WiFi credentials after the provisioning is done.
+  */
+  wait -> WifiCredentials:
+    result := done-latch_.get
     // The latch is set as soon as the other side does the last action
     // (get result of the wifi-provisioning). At this point we haven't yet sent
     // the response back. So we need to wait a bit before closing the connection.
     sleep --ms=500
-    return true  // Currently we only return if things are successful.
+    return result  // Currently we only return if things are successful.
 
   /**
   Closes the provisioning and shuts down the service.
   */
   close:
     ble_.close
+    ble_ = null

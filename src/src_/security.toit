@@ -16,7 +16,7 @@ class SecurityCredentials:
   salt/ByteArray
   verifier/ByteArray
 
-  constructor --.salt/ByteArray --.verifier/ByteArray:
+  constructor.scheme2 --.salt/ByteArray --.verifier/ByteArray:
 
 security-for --credentials/SecurityCredentials? -> Security:
   if not credentials: return Security0_
