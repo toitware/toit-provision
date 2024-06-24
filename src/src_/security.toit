@@ -29,7 +29,7 @@ interface Security:
   version -> int
 
 /**
-Security scheme 1 doesn't encrypt/decrypt.
+Security scheme 0 doesn't encrypt/decrypt.
 
 See https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/provisioning/provisioning.html#security-schemes.
 */
