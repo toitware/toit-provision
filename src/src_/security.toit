@@ -101,7 +101,17 @@ class Security2_ implements Security:
                   --device-salt=salt_
 
     if ses2.msg == Sec2MsgType-S2Session-Command1:
-      device-proof := srp_.exchange-proofs user-name_ ses2.payload-sc1.client-proof
+      device-proof/ByteArray? := null
+      exception := catch:
+        device-proof = srp_.exchange-proofs user-name_ ses2.payload-sc1.client-proof
+
+      if exception:
+        return SessionData
+            --sec-ver=version
+            --proto-sec2=Sec2Payload
+                --msg=Sec2MsgType-S2Session-Response1
+                --payload-sr1=S2SessionResp1
+                    --status=Status-CryptoError
 
       return SessionData
           --sec-ver=version
