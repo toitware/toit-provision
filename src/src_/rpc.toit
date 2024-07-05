@@ -18,7 +18,7 @@ A BLE device writes a value to the characteristic, and the device sets
 */
 abstract class RpcService:
   static UUID-BASE_ ::= 0xff
-  static READ-TIMEOUT-MS_ ::= 10 * 1000
+  static WRITE-TIMEOUT-MS_ ::= 10 * 1000
   static PROPERTIES_ ::= ble.CHARACTERISTIC-PROPERTY-READ | ble.CHARACTERISTIC-PROPERTY-WRITE
   static PERMISSIONS_ ::= ble.CHARACTERISTIC-PERMISSION-READ | ble.CHARACTERISTIC-PERMISSION-WRITE
 
@@ -48,7 +48,6 @@ abstract class RpcService:
         ble.BleUuid uuid
         --properties=PROPERTIES_
         --permissions=PERMISSIONS_
-        --read-timeout-ms=READ-TIMEOUT-MS_
     characteristic_.add-descriptor DESCRIPTOR-UUID
         --properties=ble.CHARACTERISTIC-PROPERTY-READ
         --permissions=ble.CHARACTERISTIC-PERMISSION-READ
@@ -69,7 +68,7 @@ abstract class RpcService:
 
   run_ -> none:
     while true:
-      characteristic_.handle-write-request: | data/ByteArray |
+      characteristic_.handle-write-request --timeout=WRITE_TIMEOUT_MS_: | data/ByteArray |
         if security_: data = security_.decrypt data
         response-bytes := handle-request data
         if security_: response-bytes = security_.encrypt response-bytes
