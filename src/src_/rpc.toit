@@ -68,7 +68,7 @@ abstract class RpcService:
 
   run_ -> none:
     while true:
-      characteristic_.handle-write-request --timeout=WRITE_TIMEOUT_MS_: | data/ByteArray |
+      characteristic_.handle-write-request --timeout-ms=WRITE_TIMEOUT_MS_: | data/ByteArray |
         if security_: data = security_.decrypt data
         response-bytes := handle-request data
         if security_: response-bytes = security_.encrypt response-bytes
