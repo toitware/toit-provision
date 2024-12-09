@@ -52,12 +52,12 @@ class BleProvision:
 
   start:
     peripheral.start-advertise
-        ble.AdvertisementData
+        ble.Advertisement
             --name=name
-            --service-classes=[service.uuid]
+            --services=[service.uuid]
             --flags=ble.BLE-ADVERTISE-FLAGS-GENERAL-DISCOVERY |
                     ble.BLE-ADVERTISE-FLAGS-BREDR-UNSUPPORTED
-        --interval=Duration --ms=160
+        --interval=(Duration --ms=160)
         --connection-mode=ble.BLE-CONNECT-MODE-UNDIRECTIONAL
 
   close:
