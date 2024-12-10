@@ -2,7 +2,7 @@ name: provision
 description: Package to support provisioning (setting the WiFi credentials) of an
   ESP32 through BLE using a PC or an Android app.
 environment:
-  sdk: ^v2.0.0-alpha.159.2
+  sdk: ^v2.0.0-alpha.173
 dependencies:
   protobuf:
     url: github.com/toitware/toit-protobuf
