@@ -51,12 +51,15 @@ class BleProvision:
     peripheral.deploy
 
   start:
+    advertisement := ble.Advertisement
+        --services=[service.uuid]
+        --flags=ble.BLE-ADVERTISE-FLAGS-GENERAL-DISCOVERY |
+                ble.BLE-ADVERTISE-FLAGS-BREDR-UNSUPPORTED
+    scan-response := ble.Advertisement --name=name
+
     peripheral.start-advertise
-        ble.Advertisement
-            --name=name
-            --services=[service.uuid]
-            --flags=ble.BLE-ADVERTISE-FLAGS-GENERAL-DISCOVERY |
-                    ble.BLE-ADVERTISE-FLAGS-BREDR-UNSUPPORTED
+        advertisement
+        --scan-response=scan-response
         --interval=(Duration --ms=160)
         --connection-mode=ble.BLE-CONNECT-MODE-UNDIRECTIONAL
 
