@@ -22,8 +22,6 @@ abstract class RpcService:
   static PROPERTIES_ ::= ble.CHARACTERISTIC-PROPERTY-READ | ble.CHARACTERISTIC-PROPERTY-WRITE
   static PERMISSIONS_ ::= ble.CHARACTERISTIC-PERMISSION-READ | ble.CHARACTERISTIC-PERMISSION-WRITE
 
-  static hash-counter_ := 0
-
   // When a new RPC call comes in, we clear all other RPC services' return values.
   static all-rpc-services_/Set? ::= {}
 
@@ -31,7 +29,7 @@ abstract class RpcService:
   description/string
   security_/Security?
   task_/Task? := null
-  hash-code/int ::= hash-counter_++
+  hash-code/int ::= random
 
   /**
   Constructs a new RPC characteristic.
