@@ -22,10 +22,14 @@ abstract class RpcService:
   static PROPERTIES_ ::= ble.CHARACTERISTIC-PROPERTY-READ | ble.CHARACTERISTIC-PROPERTY-WRITE
   static PERMISSIONS_ ::= ble.CHARACTERISTIC-PERMISSION-READ | ble.CHARACTERISTIC-PERMISSION-WRITE
 
+  // When a new RPC call comes in, we clear all other RPC services' return values.
+  static all-rpc-services_/Set? ::= {}
+
   characteristic_/ble.LocalCharacteristic
   description/string
   security_/Security?
   task_/Task? := null
+  hash-code/int ::= random
 
   /**
   Constructs a new RPC characteristic.
@@ -53,6 +57,7 @@ abstract class RpcService:
         --permissions=ble.CHARACTERISTIC-PERMISSION-READ
         --value=description
 
+    all-rpc-services_.add this
     task_ = task:: run_
 
   /**
@@ -62,6 +67,7 @@ abstract class RpcService:
 
   close -> none:
     critical-do:
+      all-rpc-services_.remove this
       if task_:
         task_.cancel
         task_ = null
@@ -72,6 +78,9 @@ abstract class RpcService:
         if security_: data = security_.decrypt data
         response-bytes := handle-request data
         if security_: response-bytes = security_.encrypt response-bytes
+        all-rpc-services_.do: | service/RpcService |
+          if service != this:
+            service.characteristic_.set-value null
         characteristic_.set-value response-bytes
 
 /**
